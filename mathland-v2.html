@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>MathLand 🌈 v2</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --sky:#6EC6F5; --sun:#FFD93D; --grass:#6BCB77;
+  --purple:#A855F7; --pink:#EC4899; --orange:#FF6B35;
+  --red:#EF4444; --teal:#14B8A6; --indigo:#6366F1;
+  --card:#fffffffa; --shadow:0 8px 32px rgba(0,0,0,0.13);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Nunito',sans-serif;background:linear-gradient(180deg,#87CEEB 0%,#B0E0FF 38%,#6BCB77 38%,#4CAF50 100%);min-height:100vh;overflow-x:hidden}
+
+/* BG DECO */
+.sun{position:fixed;top:28px;right:58px;width:78px;height:78px;background:radial-gradient(circle,#FFE566,#FFD93D);border-radius:50%;box-shadow:0 0 0 14px rgba(255,217,61,.22),0 0 0 28px rgba(255,217,61,.1);animation:sunP 3s ease-in-out infinite;z-index:0}
+@keyframes sunP{0%,100%{box-shadow:0 0 0 14px rgba(255,217,61,.22),0 0 0 28px rgba(255,217,61,.1)}50%{box-shadow:0 0 0 20px rgba(255,217,61,.3),0 0 0 40px rgba(255,217,61,.12)}}
+.cloud{position:fixed;background:#fff;border-radius:50px;opacity:.85;animation:cloudF linear infinite;z-index:0}
+.cloud::before,.cloud::after{content:'';position:absolute;background:#fff;border-radius:50%}
+.c1{width:120px;height:40px;top:8%;left:-140px;animation-duration:22s}
+.c1::before{width:60px;height:60px;top:-30px;left:15px}
+.c1::after{width:40px;height:40px;top:-20px;left:55px}
+.c2{width:90px;height:30px;top:18%;left:-110px;animation-duration:30s;animation-delay:8s}
+.c2::before{width:45px;height:45px;top:-22px;left:10px}
+.c2::after{width:30px;height:30px;top:-15px;left:40px}
+.c3{width:150px;height:46px;top:4%;left:-170px;animation-duration:38s;animation-delay:15s}
+.c3::before{width:75px;height:75px;top:-36px;left:20px}
+.c3::after{width:55px;height:55px;top:-26px;left:70px}
+@keyframes cloudF{from{left:-220px}to{left:110vw}}
+.star-deco{position:fixed;font-size:22px;animation:starF 4s ease-in-out infinite;z-index:0;pointer-events:none}
+@keyframes starF{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-12px) rotate(15deg)}}
+
+/* SCREENS */
+.screen{display:none;position:relative;z-index:1}
+.screen.active{display:flex;flex-direction:column;align-items:center}
+
+/* ===== HOME ===== */
+#home{min-height:100vh;justify-content:center;padding:20px}
+.logo{font-family:'Fredoka One',cursive;font-size:clamp(50px,10vw,88px);background:linear-gradient(135deg,#FF6B35,#EC4899,#A855F7,#6366F1);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;filter:drop-shadow(3px 4px 0 rgba(0,0,0,.15));animation:logoBounce 2s ease-in-out infinite;line-height:1;margin-bottom:4px}
+@keyframes logoBounce{0%,100%{transform:translateY(0) rotate(-2deg)}50%{transform:translateY(-10px) rotate(2deg)}}
+.logo-sub{font-family:'Fredoka One',cursive;font-size:clamp(16px,4vw,24px);color:#fff;text-shadow:2px 3px 0 rgba(0,0,0,.2);margin-bottom:34px;letter-spacing:1px}
+.mascot{font-size:88px;animation:wiggle 1.8s ease-in-out infinite;display:block;margin-bottom:28px;filter:drop-shadow(3px 6px 6px rgba(0,0,0,.15))}
+@keyframes wiggle{0%,100%{transform:rotate(-5deg) scale(1)}25%{transform:rotate(5deg) scale(1.05)}50%{transform:rotate(-3deg) scale(1.02)}75%{transform:rotate(4deg) scale(1.04)}}
+.play-btn{font-family:'Fredoka One',cursive;font-size:30px;color:#fff;background:linear-gradient(135deg,#FF6B35,#EC4899);border:none;border-radius:60px;padding:18px 58px;cursor:pointer;box-shadow:0 8px 0 #c73d7a,0 12px 24px rgba(236,72,153,.35);transition:all .12s ease;letter-spacing:1px;margin-bottom:14px}
+.play-btn:hover{transform:translateY(-4px);box-shadow:0 12px 0 #c73d7a,0 18px 30px rgba(236,72,153,.4)}
+.play-btn:active{transform:translateY(4px);box-shadow:0 4px 0 #c73d7a}
+.home-btns{display:flex;gap:12px;margin-top:10px}
+.home-btn-sm{font-family:'Fredoka One',cursive;font-size:17px;color:#fff;background:rgba(255,255,255,.25);border:3px solid rgba(255,255,255,.5);border-radius:50px;padding:10px 22px;cursor:pointer;backdrop-filter:blur(6px);transition:all .15s}
+.home-btn-sm:hover{background:rgba(255,255,255,.4);transform:translateY(-2px)}
+.stars-banner{display:flex;gap:8px;align-items:center;background:rgba(255,255,255,.25);border-radius:50px;padding:10px 22px;margin-top:14px;backdrop-filter:blur(6px)}
+.stars-banner .si{font-size:22px}
+.stars-banner .sv{font-family:'Fredoka One',cursive;font-size:20px;color:#fff;text-shadow:1px 2px 0 rgba(0,0,0,.18)}
+
+/* ===== TOPICS ===== */
+#topics{min-height:100vh;padding:20px}
+.screen-title{font-family:'Fredoka One',cursive;font-size:clamp(26px,6vw,44px);color:#fff;text-shadow:2px 4px 0 rgba(0,0,0,.2);margin:18px 0 26px;text-align:center}
+.topics-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:16px;max-width:720px;width:100%;margin-bottom:24px}
+.topic-card{background:var(--card);border-radius:26px;padding:24px 16px;text-align:center;cursor:pointer;box-shadow:var(--shadow);border:4px solid transparent;transition:all .2s ease;position:relative;overflow:hidden}
+.topic-card::before{content:'';position:absolute;inset:0;opacity:0;transition:opacity .2s;border-radius:22px}
+.topic-card:hover{transform:translateY(-6px) scale(1.03)}
+.topic-card:hover::before{opacity:1}
+.topic-card:active{transform:scale(.97)}
+.tc-counting{border-color:#FFD93D}.tc-counting::before{background:linear-gradient(135deg,rgba(255,217,61,.12),rgba(255,107,53,.12))}
+.tc-addition{border-color:#6BCB77}.tc-addition::before{background:linear-gradient(135deg,rgba(107,203,119,.15),rgba(20,184,166,.12))}
+.tc-subtraction{border-color:#EC4899}.tc-subtraction::before{background:linear-gradient(135deg,rgba(236,72,153,.12),rgba(168,85,247,.12))}
+.tc-multiplication{border-color:#6366F1}.tc-multiplication::before{background:linear-gradient(135deg,rgba(99,102,241,.12),rgba(236,72,153,.12))}
+.tc-division{border-color:#FF6B35}.tc-division::before{background:linear-gradient(135deg,rgba(255,107,53,.12),rgba(255,217,61,.12))}
+.tc-shapes{border-color:#14B8A6}.tc-shapes::before{background:linear-gradient(135deg,rgba(20,184,166,.12),rgba(99,102,241,.12))}
+.tc-patterns{border-color:#A855F7}.tc-patterns::before{background:linear-gradient(135deg,rgba(168,85,247,.12),rgba(236,72,153,.12))}
+.tc-time{border-color:#F97316}.tc-time::before{background:linear-gradient(135deg,rgba(249,115,22,.12),rgba(255,217,61,.12))}
+.topic-emoji{font-size:46px;display:block;margin-bottom:10px}
+.topic-name{font-family:'Fredoka One',cursive;font-size:18px;color:#333;margin-bottom:4px}
+.topic-desc{font-size:11px;color:#999;font-weight:700}
+.topic-badge{position:absolute;top:9px;right:9px;background:#FFD93D;color:#333;font-family:'Fredoka One',cursive;font-size:12px;padding:3px 7px;border-radius:20px;box-shadow:0 2px 6px rgba(0,0,0,.1)}
+.back-btn{font-family:'Fredoka One',cursive;background:#fff;border:none;border-radius:50px;padding:10px 22px;font-size:15px;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.12);color:#555;transition:all .15s}
+.back-btn:hover{transform:scale(1.05)}
+
+/* ===== GAME ===== */
+#game{min-height:100vh;padding:16px}
+.game-header{width:100%;max-width:560px;display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.q-counter{font-family:'Fredoka One',cursive;font-size:16px;color:#fff;text-shadow:1px 2px 0 rgba(0,0,0,.15)}
+.score-bar{display:flex;gap:6px;align-items:center;background:#fff;border-radius:50px;padding:8px 16px;box-shadow:0 4px 12px rgba(0,0,0,.12)}
+.score-bar .si{font-size:19px}
+.score-bar .sv{font-family:'Fredoka One',cursive;font-size:19px;color:#FF6B35}
+.progress-wrap{width:100%;max-width:560px;background:rgba(255,255,255,.4);border-radius:20px;height:13px;margin-bottom:16px;overflow:hidden}
+.progress-bar{height:100%;border-radius:20px;background:linear-gradient(90deg,#FFD93D,#FF6B35);transition:width .5s ease;box-shadow:0 2px 8px rgba(255,107,53,.4)}
+.question-card{background:var(--card);border-radius:30px;padding:32px 24px 26px;width:100%;max-width:560px;box-shadow:var(--shadow);text-align:center;position:relative;margin-bottom:18px;border:4px solid rgba(255,255,255,.8)}
+.topic-label{position:absolute;top:-15px;left:50%;transform:translateX(-50%);font-family:'Fredoka One',cursive;font-size:14px;color:#fff;padding:5px 18px;border-radius:28px;box-shadow:0 4px 10px rgba(0,0,0,.15);white-space:nowrap}
+.question-visual{font-size:44px;margin-bottom:10px;min-height:56px;display:flex;flex-wrap:wrap;justify-content:center;gap:4px;line-height:1.4;align-items:center}
+.question-text{font-family:'Fredoka One',cursive;font-size:clamp(36px,8vw,58px);color:#333;margin-bottom:4px;letter-spacing:-1px}
+.question-hint{font-size:13px;color:#bbb;font-weight:700;margin-bottom:2px}
+.options-grid{display:grid;grid-template-columns:1fr 1fr;gap:13px;width:100%;max-width:560px}
+.option-btn{font-family:'Fredoka One',cursive;font-size:clamp(22px,5vw,30px);color:#333;background:#fff;border:4px solid #e5e7eb;border-radius:20px;padding:20px 10px;cursor:pointer;box-shadow:0 6px 0 #d1d5db,0 8px 20px rgba(0,0,0,.08);transition:all .12s ease;position:relative;overflow:hidden}
+.option-btn:hover:not(:disabled){transform:translateY(-3px);box-shadow:0 9px 0 #d1d5db,0 12px 24px rgba(0,0,0,.1);border-color:#A855F7;color:#A855F7}
+.option-btn:active:not(:disabled){transform:translateY(3px);box-shadow:0 3px 0 #d1d5db}
+.option-btn.correct{background:linear-gradient(135deg,#6BCB77,#14B8A6);border-color:#4CAF50;color:#fff;box-shadow:0 6px 0 #2e7d32,0 8px 20px rgba(76,175,80,.3);animation:correctPop .4s ease}
+.option-btn.wrong{background:linear-gradient(135deg,#EF4444,#EC4899);border-color:#c62828;color:#fff;box-shadow:0 6px 0 #b71c1c;animation:wrongShake .4s ease}
+@keyframes correctPop{0%{transform:scale(1)}40%{transform:scale(1.12)}100%{transform:scale(1)}}
+@keyframes wrongShake{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+
+/* special option buttons for shapes/patterns/time */
+.option-btn.shape-opt{font-size:38px;padding:14px}
+.option-btn.pattern-opt{font-size:22px;letter-spacing:2px;padding:14px}
+
+/* CLOCK */
+.clock-svg{width:110px;height:110px;margin:0 auto 8px;display:block}
+
+/* ===== FEEDBACK ===== */
+.feedback-overlay{position:fixed;inset:0;z-index:100;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none;opacity:0;transition:opacity .2s}
+.feedback-overlay.show{opacity:1}
+.feedback-emoji{font-size:88px;animation:fbPop .5s ease;filter:drop-shadow(0 6px 12px rgba(0,0,0,.2))}
+.feedback-text{font-family:'Fredoka One',cursive;font-size:40px;color:#fff;text-shadow:3px 4px 0 rgba(0,0,0,.2);animation:fbPop .5s ease}
+@keyframes fbPop{0%{transform:scale(0) rotate(-10deg)}60%{transform:scale(1.2) rotate(5deg)}100%{transform:scale(1) rotate(0)}}
+
+/* CONFETTI */
+.confetti-piece{position:fixed;pointer-events:none;z-index:200;animation:confettiF linear forwards}
+@keyframes confettiF{0%{transform:translateY(-20px) rotate(0);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
+
+/* ===== RESULT ===== */
+#result{min-height:100vh;justify-content:center;padding:24px}
+.result-card{background:var(--card);border-radius:34px;padding:38px 28px;max-width:400px;width:100%;box-shadow:var(--shadow);text-align:center}
+.result-emoji-big{font-size:76px;margin-bottom:10px;display:block}
+.result-title{font-family:'Fredoka One',cursive;font-size:36px;color:#333;margin-bottom:6px}
+.result-sub{color:#999;font-size:15px;font-weight:700;margin-bottom:20px}
+.result-stars{display:flex;justify-content:center;gap:10px;font-size:42px;margin-bottom:20px}
+.result-stars .rs{animation:starSpin .6s ease forwards;opacity:0}
+@keyframes starSpin{0%{transform:scale(0) rotate(-180deg);opacity:0}100%{transform:scale(1) rotate(0);opacity:1}}
+.result-score{font-family:'Fredoka One',cursive;font-size:24px;color:#FF6B35;margin-bottom:22px}
+.result-btns{display:flex;flex-direction:column;gap:11px}
+.result-btn{font-family:'Fredoka One',cursive;font-size:21px;color:#fff;border:none;border-radius:50px;padding:15px;cursor:pointer;transition:all .15s ease}
+.rb-primary{background:linear-gradient(135deg,#FF6B35,#EC4899);box-shadow:0 6px 0 #c73d7a}
+.rb-secondary{background:linear-gradient(135deg,#6366F1,#A855F7);box-shadow:0 6px 0 #4338ca}
+.rb-tertiary{background:linear-gradient(135deg,#14B8A6,#6BCB77);box-shadow:0 6px 0 #0f766e}
+.result-btn:hover{transform:translateY(-3px)}
+.result-btn:active{transform:translateY(3px)}
+
+/* ===== PARENT DASHBOARD ===== */
+#parent{min-height:100vh;padding:20px;background:linear-gradient(180deg,#1e1b4b,#312e81,#4c1d95)}
+#parent.active{display:flex}
+.parent-header{width:100%;max-width:640px;display:flex;justify-content:space-between;align-items:center;margin-bottom:22px}
+.parent-title{font-family:'Fredoka One',cursive;font-size:28px;color:#fff}
+.parent-card{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:22px;padding:22px;width:100%;max-width:640px;margin-bottom:16px;backdrop-filter:blur(10px)}
+.parent-card-title{font-family:'Fredoka One',cursive;font-size:18px;color:#c4b5fd;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.stat-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.08)}
+.stat-row:last-child{border-bottom:none}
+.stat-label{font-size:14px;color:rgba(255,255,255,.7);font-weight:700}
+.stat-val{font-family:'Fredoka One',cursive;font-size:20px;color:#fff}
+.stat-val.good{color:#6BCB77}
+.stat-val.med{color:#FFD93D}
+.stat-val.low{color:#EC4899}
+.topic-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.07)}
+.topic-row:last-child{border-bottom:none}
+.topic-row-em{font-size:24px}
+.topic-row-name{font-family:'Fredoka One',cursive;font-size:16px;color:#fff;flex:1}
+.mini-bar-wrap{flex:1.5;height:12px;background:rgba(255,255,255,.15);border-radius:10px;overflow:hidden}
+.mini-bar{height:100%;border-radius:10px;transition:width .8s ease}
+.topic-row-pct{font-family:'Fredoka One',cursive;font-size:15px;color:#c4b5fd;min-width:38px;text-align:right}
+.achievements-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:12px}
+.ach-badge{background:rgba(255,255,255,.08);border:2px solid rgba(255,255,255,.15);border-radius:18px;padding:14px;text-align:center;transition:all .2s}
+.ach-badge.unlocked{background:rgba(255,217,61,.15);border-color:#FFD93D}
+.ach-emoji{font-size:32px;display:block;margin-bottom:6px}
+.ach-name{font-family:'Fredoka One',cursive;font-size:12px;color:rgba(255,255,255,.7)}
+.ach-badge.unlocked .ach-name{color:#FFD93D}
+.lock-overlay{font-size:20px;display:block;margin-bottom:4px;opacity:.4}
+.settings-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.07)}
+.settings-row:last-child{border-bottom:none}
+.settings-label{font-size:14px;color:rgba(255,255,255,.8);font-weight:700}
+.toggle{position:relative;width:50px;height:26px;background:rgba(255,255,255,.2);border-radius:13px;cursor:pointer;transition:background .2s}
+.toggle.on{background:#6BCB77}
+.toggle::after{content:'';position:absolute;width:20px;height:20px;background:#fff;border-radius:50%;top:3px;left:3px;transition:left .2s;box-shadow:0 2px 6px rgba(0,0,0,.2)}
+.toggle.on::after{left:27px}
+.pin-gate{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:500;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(8px)}
+.pin-card{background:#fff;border-radius:28px;padding:34px 28px;text-align:center;max-width:340px;width:90%}
+.pin-title{font-family:'Fredoka One',cursive;font-size:26px;color:#333;margin-bottom:6px}
+.pin-sub{font-size:14px;color:#999;margin-bottom:22px;font-weight:600}
+.pin-dots{display:flex;gap:12px;justify-content:center;margin-bottom:22px}
+.pin-dot{width:18px;height:18px;border-radius:50%;border:3px solid #ddd;transition:all .2s}
+.pin-dot.filled{background:#6366F1;border-color:#6366F1}
+.pin-numpad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:220px;margin:0 auto 16px}
+.pin-num{font-family:'Fredoka One',cursive;font-size:24px;background:#f3f4f6;border:none;border-radius:14px;padding:14px;cursor:pointer;transition:all .15s;color:#333}
+.pin-num:hover{background:#e0e7ff;color:#6366F1}
+.pin-num:active{transform:scale(.94)}
+.pin-cancel{font-family:'Fredoka One',cursive;font-size:16px;color:#999;background:none;border:none;cursor:pointer;padding:8px}
+.pin-error{color:#EF4444;font-size:13px;font-weight:700;margin-top:-10px;margin-bottom:10px;min-height:20px}
+
+/* count dot anim */
+.cdot{display:inline-block;animation:cdotP .3s ease forwards;opacity:0}
+@keyframes cdotP{to{opacity:1;transform:scale(1)}from{opacity:0;transform:scale(0)}}
+
+/* sound toggle */
+.sound-fab{position:fixed;bottom:22px;right:22px;z-index:50;background:#fff;border:none;border-radius:50%;width:50px;height:50px;font-size:22px;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,.18);transition:all .15s}
+.sound-fab:hover{transform:scale(1.1)}
+</style>
+</head>
+<body>
+
+<div class="sun"></div>
+<div class="cloud c1"></div><div class="cloud c2"></div><div class="cloud c3"></div>
+<div class="star-deco" style="top:20%;left:8%;animation-delay:0s">⭐</div>
+<div class="star-deco" style="top:35%;left:92%;animation-delay:1s">✨</div>
+<div class="star-deco" style="top:62%;left:5%;animation-delay:2s">🌟</div>
+<div class="star-deco" style="top:76%;left:91%;animation-delay:.5s">⭐</div>
+
+<button class="sound-fab" id="soundFab" onclick="toggleSound()" title="Toggle Sound">🔊</button>
+
+<!-- PIN GATE -->
+<div class="pin-gate" id="pinGate" style="display:none">
+  <div class="pin-card">
+    <div class="pin-title">👨‍👩‍👧 Parent Area</div>
+    <div class="pin-sub">Enter PIN: <strong>1234</strong></div>
+    <div class="pin-dots">
+      <div class="pin-dot" id="pd0"></div><div class="pin-dot" id="pd1"></div>
+      <div class="pin-dot" id="pd2"></div><div class="pin-dot" id="pd3"></div>
+    </div>
+    <div class="pin-error" id="pinError"></div>
+    <div class="pin-numpad">
+      <button class="pin-num" onclick="pinPress(1)">1</button>
+      <button class="pin-num" onclick="pinPress(2)">2</button>
+      <button class="pin-num" onclick="pinPress(3)">3</button>
+      <button class="pin-num" onclick="pinPress(4)">4</button>
+      <button class="pin-num" onclick="pinPress(5)">5</button>
+      <button class="pin-num" onclick="pinPress(6)">6</button>
+      <button class="pin-num" onclick="pinPress(7)">7</button>
+      <button class="pin-num" onclick="pinPress(8)">8</button>
+      <button class="pin-num" onclick="pinPress(9)">9</button>
+      <button class="pin-num" onclick="pinPress('X')" style="background:#fee2e2;color:#ef4444">⌫</button>
+      <button class="pin-num" onclick="pinPress(0)">0</button>
+      <button class="pin-num" onclick="closePinGate()" style="background:#f3f4f6;color:#999">✕</button>
+    </div>
+  </div>
+</div>
+
+<!-- HOME -->
+<div id="home" class="screen active">
+  <span class="mascot">🦁</span>
+  <div class="logo">MathLand</div>
+  <div class="logo-sub">🌈 A Math Adventure for Kids!</div>
+  <button class="play-btn" onclick="showTopics()">▶ Let's Play!</button>
+  <div class="home-btns">
+    <button class="home-btn-sm" onclick="openParent()">👨‍👩‍👧 Parents</button>
+    <button class="home-btn-sm" onclick="showTopics()">🗺️ Topics</button>
+  </div>
+  <div class="stars-banner">
+    <span class="si">⭐</span>
+    <span class="sv" id="totalStars">0 Stars Earned</span>
+    <span class="si">🏆</span>
+    <span class="sv" id="totalGames">0 Games</span>
+  </div>
+</div>
+
+<!-- TOPICS -->
+<div id="topics" class="screen">
+  <div class="screen-title">🎯 Choose Your Adventure!</div>
+  <div class="topics-grid">
+    <div class="topic-card tc-counting"   onclick="startGame('counting')"><span class="topic-emoji">🍎</span><div class="topic-name">Counting</div><div class="topic-desc">1 · 2 · 3 · ...</div></div>
+    <div class="topic-card tc-addition"   onclick="startGame('addition')"><div class="topic-badge">➕</div><span class="topic-emoji">🐣</span><div class="topic-name">Addition</div><div class="topic-desc">Adding Fun!</div></div>
+    <div class="topic-card tc-subtraction" onclick="startGame('subtraction')"><div class="topic-badge">➖</div><span class="topic-emoji">🎈</span><div class="topic-name">Subtraction</div><div class="topic-desc">Take Away!</div></div>
+    <div class="topic-card tc-multiplication" onclick="startGame('multiplication')"><div class="topic-badge">✖️</div><span class="topic-emoji">🦋</span><div class="topic-name">Multiply</div><div class="topic-desc">Groups of!</div></div>
+    <div class="topic-card tc-division"   onclick="startGame('division')"><div class="topic-badge">➗</div><span class="topic-emoji">🍕</span><div class="topic-name">Division</div><div class="topic-desc">Share it!</div></div>
+    <div class="topic-card tc-shapes"     onclick="startGame('shapes')"><span class="topic-emoji">🔷</span><div class="topic-name">Shapes</div><div class="topic-desc">Match 'em!</div></div>
+    <div class="topic-card tc-patterns"   onclick="startGame('patterns')"><span class="topic-emoji">🔴🔵</span><div class="topic-name">Patterns</div><div class="topic-desc">What's next?</div></div>
+    <div class="topic-card tc-time"       onclick="startGame('time')"><span class="topic-emoji">🕐</span><div class="topic-name">Time</div><div class="topic-desc">Read the clock!</div></div>
+  </div>
+  <button class="back-btn" onclick="showHome()">🏠 Home</button>
+</div>
+
+<!-- GAME -->
+<div id="game" class="screen">
+  <div class="game-header">
+    <button class="back-btn" onclick="showTopics()">← Back</button>
+    <span class="q-counter" id="qCounter">Q 1 / 5</span>
+    <div class="score-bar"><span class="si">⭐</span><span class="sv" id="scoreVal">0</span></div>
+  </div>
+  <div class="progress-wrap"><div class="progress-bar" id="progressBar" style="width:0%"></div></div>
+  <div class="question-card">
+    <div class="topic-label" id="topicLabel">Counting</div>
+    <div class="question-visual" id="questionVisual"></div>
+    <div class="question-text" id="questionText">?</div>
+    <div class="question-hint" id="questionHint">Pick the right answer!</div>
+  </div>
+  <div class="options-grid" id="optionsGrid"></div>
+</div>
+
+<!-- RESULT -->
+<div id="result" class="screen">
+  <div class="result-card">
+    <span class="result-emoji-big" id="resultEmoji">🏆</span>
+    <div class="result-title" id="resultTitle">Amazing!</div>
+    <div class="result-sub" id="resultSub">You did great!</div>
+    <div class="result-stars" id="resultStars"></div>
+    <div class="result-score" id="resultScore">⭐ 3 / 5</div>
+    <div class="result-btns">
+      <button class="result-btn rb-primary" onclick="retryGame()">🔄 Play Again</button>
+      <button class="result-btn rb-secondary" onclick="showTopics()">🗺️ Choose Topic</button>
+      <button class="result-btn rb-tertiary" onclick="showHome()">🏠 Home</button>
+    </div>
+  </div>
+</div>
+
+<!-- PARENT DASHBOARD -->
+<div id="parent" class="screen">
+  <div class="parent-header" style="width:100%;max-width:640px">
+    <div class="parent-title">👨‍👩‍👧 Parent Dashboard</div>
+    <button class="back-btn" onclick="showHome()" style="background:rgba(255,255,255,.15);color:#fff;border:2px solid rgba(255,255,255,.3)">🏠 Home</button>
+  </div>
+
+  <!-- OVERVIEW -->
+  <div class="parent-card" style="max-width:640px">
+    <div class="parent-card-title">📊 Overview</div>
+    <div class="stat-row"><span class="stat-label">Total Stars Earned</span><span class="stat-val good" id="pStars">0 ⭐</span></div>
+    <div class="stat-row"><span class="stat-label">Games Played</span><span class="stat-val" id="pGames">0</span></div>
+    <div class="stat-row"><span class="stat-label">Questions Answered</span><span class="stat-val" id="pQs">0</span></div>
+    <div class="stat-row"><span class="stat-label">Overall Accuracy</span><span class="stat-val good" id="pAccuracy">—</span></div>
+    <div class="stat-row"><span class="stat-label">Favorite Topic</span><span class="stat-val" id="pFav">—</span></div>
+  </div>
+
+  <!-- TOPIC PERFORMANCE -->
+  <div class="parent-card" style="max-width:640px">
+    <div class="parent-card-title">🎯 Topic Performance</div>
+    <div id="topicPerf"></div>
+  </div>
+
+  <!-- ACHIEVEMENTS -->
+  <div class="parent-card" style="max-width:640px">
+    <div class="parent-card-title">🏆 Achievements</div>
+    <div class="achievements-grid" id="achievementsGrid"></div>
+  </div>
+
+  <!-- SETTINGS -->
+  <div class="parent-card" style="max-width:640px;margin-bottom:30px">
+    <div class="parent-card-title">⚙️ Settings</div>
+    <div class="settings-row">
+      <span class="settings-label">🔊 Sound Effects</span>
+      <div class="toggle on" id="soundToggle" onclick="toggleSoundSetting()"></div>
+    </div>
+    <div class="settings-row">
+      <span class="settings-label">🎵 Background Music</span>
+      <div class="toggle" id="musicToggle" onclick="toggleMusicSetting()"></div>
+    </div>
+    <div class="settings-row">
+      <span class="settings-label">🎉 Confetti Effects</span>
+      <div class="toggle on" id="confettiToggle" onclick="toggleConfettiSetting()"></div>
+    </div>
+    <div class="settings-row">
+      <span class="settings-label">⏱️ Timed Mode</span>
+      <div class="toggle" id="timedToggle" onclick="toggleTimedSetting()"></div>
+    </div>
+    <div class="settings-row">
+      <span class="settings-label">🔢 Questions per Round</span>
+      <div style="display:flex;gap:8px">
+        <button onclick="setQPerRound(5)" id="qBtn5" style="font-family:'Fredoka One',cursive;font-size:15px;padding:6px 14px;border-radius:20px;border:2px solid #6366F1;background:#6366F1;color:#fff;cursor:pointer">5</button>
+        <button onclick="setQPerRound(10)" id="qBtn10" style="font-family:'Fredoka One',cursive;font-size:15px;padding:6px 14px;border-radius:20px;border:2px solid rgba(255,255,255,.3);background:rgba(255,255,255,.1);color:#fff;cursor:pointer">10</button>
+      </div>
+    </div>
+    <div class="settings-row" style="border-bottom:none">
+      <span class="settings-label">🗑️ Reset Progress</span>
+      <button onclick="resetProgress()" style="font-family:'Fredoka One',cursive;font-size:14px;background:#EF4444;color:#fff;border:none;border-radius:20px;padding:8px 16px;cursor:pointer">Reset</button>
+    </div>
+  </div>
+</div>
+
+<!-- FEEDBACK -->
+<div class="feedback-overlay" id="feedbackOverlay">
+  <div class="feedback-emoji" id="feedbackEmoji">🎉</div>
+  <div class="feedback-text" id="feedbackText">Correct!</div>
+</div>
+
+<script>
+// ========== AUDIO ENGINE ==========
+const AudioCtx = window.AudioContext || window.webkitAudioContext;
+let ctx = null;
+let soundOn = true, confettiOn = true;
+
+function getCtx(){ if(!ctx) ctx = new AudioCtx(); return ctx; }
+
+function playTone(freq, type='sine', duration=0.18, vol=0.3, delay=0){
+  if(!soundOn) return;
+  try {
+    const c = getCtx();
+    const osc = c.createOscillator();
+    const gain = c.createGain();
+    osc.connect(gain); gain.connect(c.destination);
+    osc.type = type; osc.frequency.value = freq;
+    gain.gain.setValueAtTime(0, c.currentTime+delay);
+    gain.gain.linearRampToValueAtTime(vol, c.currentTime+delay+0.01);
+    gain.gain.exponentialRampToValueAtTime(0.001, c.currentTime+delay+duration);
+    osc.start(c.currentTime+delay);
+    osc.stop(c.currentTime+delay+duration+0.01);
+  } catch(e){}
+}
+
+function playCorrect(){
+  playTone(523,  'sine', 0.15, 0.25, 0);
+  playTone(659,  'sine', 0.15, 0.25, 0.12);
+  playTone(784,  'sine', 0.2,  0.25, 0.24);
+  playTone(1047, 'sine', 0.3,  0.2,  0.38);
+}
+
+function playWrong(){
+  playTone(300, 'sawtooth', 0.1, 0.2, 0);
+  playTone(220, 'sawtooth', 0.15, 0.2, 0.12);
+}
+
+function playClick(){
+  playTone(800, 'sine', 0.08, 0.15, 0);
+}
+
+function playWin(){
+  [523,659,784,659,784,1047].forEach((f,i) => playTone(f,'sine',0.15,0.2,i*0.1));
+}
+
+function toggleSound(){
+  soundOn = !soundOn;
+  document.getElementById('soundFab').textContent = soundOn ? '🔊' : '🔇';
+  const t = document.getElementById('soundToggle');
+  if(soundOn) t.classList.add('on'); else t.classList.remove('on');
+}
+
+function toggleSoundSetting(){
+  soundOn = !soundOn;
+  document.getElementById('soundFab').textContent = soundOn ? '🔊' : '🔇';
+  const t = document.getElementById('soundToggle');
+  if(soundOn) t.classList.add('on'); else t.classList.remove('on');
+}
+function toggleMusicSetting(){ document.getElementById('musicToggle').classList.toggle('on'); }
+function toggleConfettiSetting(){ confettiOn=!confettiOn; document.getElementById('confettiToggle').classList.toggle('on'); }
+function toggleTimedSetting(){ document.getElementById('timedToggle').classList.toggle('on'); }
+
+// ========== STATE ==========
+let currentTopic='', questions=[], currentQ=0, score=0;
+let TOTAL_Q=5;
+let stats = {
+  totalStars:0, gamesPlayed:0, totalQs:0, totalCorrect:0,
+  topics:{}
+};
+const TOPICS = ['counting','addition','subtraction','multiplication','division','shapes','patterns','time'];
+TOPICS.forEach(t=>{ stats.topics[t]={played:0,correct:0}; });
+
+const COLORS_MAP = {
+  counting:'#FFD93D',addition:'#6BCB77',subtraction:'#EC4899',
+  multiplication:'#6366F1',division:'#FF6B35',
+  shapes:'#14B8A6',patterns:'#A855F7',time:'#F97316'
+};
+const LABELS_MAP = {
+  counting:'🍎 Counting',addition:'➕ Addition',subtraction:'➖ Subtraction',
+  multiplication:'✖️ Multiply',division:'➗ Division',
+  shapes:'🔷 Shapes',patterns:'🔴 Patterns',time:'🕐 Time'
+};
+const EMOJIS_MAP = {
+  counting:['🍎','🍊','🍋','🍇','🌸','⭐','🐥','🍩','🎈','🐸'],
+  addition:['🐣','🌟','🍭','🎉','🦄'],
+  subtraction:['🎈','🍪','🌺','🍬','🐠'],
+  multiplication:['🦋','🌼','🐝','🌙','🍄'],
+  division:['🍕','🍰','🍫','🍉','🍦'],
+};
+
+const SHAPE_DATA = [
+  {name:'Circle',   emoji:'⭕', opts:['⭕','🔷','🟥','🔺']},
+  {name:'Square',   emoji:'🟥', opts:['🟥','⭕','🔷','🔺']},
+  {name:'Triangle', emoji:'🔺', opts:['🔺','⭕','🟥','🔷']},
+  {name:'Diamond',  emoji:'🔷', opts:['🔷','⭕','🟥','🔺']},
+  {name:'Star',     emoji:'⭐', opts:['⭐','🔷','🟥','🔺']},
+  {name:'Heart',    emoji:'❤️', opts:['❤️','⭐','🔷','🟥']},
+  {name:'Pentagon', emoji:'⬠', opts:['⬠','❤️','🔷','⭕']},
+];
+
+const PATTERNS_DATA = [
+  {seq:['🔴','🔵','🔴','🔵','?'], answer:'🔴', opts:['🔴','🟡','🟢','🔵']},
+  {seq:['⭐','🌙','⭐','🌙','?'], answer:'⭐', opts:['⭐','🌟','🌙','☀️']},
+  {seq:['🐱','🐶','🐱','🐶','?'], answer:'🐱', opts:['🐱','🐶','🐸','🐰']},
+  {seq:['🍎','🍎','🍊','🍎','🍎','?'], answer:'🍊', opts:['🍊','🍎','🍋','🍇']},
+  {seq:['🔴','🔴','🔵','🔴','🔴','?'], answer:'🔵', opts:['🔵','🔴','🟡','🟢']},
+  {seq:['1️⃣','2️⃣','3️⃣','1️⃣','2️⃣','?'], answer:'3️⃣', opts:['3️⃣','1️⃣','4️⃣','2️⃣']},
+  {seq:['🌟','🌟','🌟','💫','🌟','🌟','🌟','?'], answer:'💫', opts:['💫','🌟','⭐','✨']},
+];
+
+const TIMES_DATA = [
+  {h:3,  m:0,  label:'3:00',  opts:['3:00','6:00','9:00','12:00']},
+  {h:6,  m:0,  label:'6:00',  opts:['6:00','3:00','12:00','9:00']},
+  {h:9,  m:0,  label:'9:00',  opts:['9:00','3:00','6:00','12:00']},
+  {h:12, m:0,  label:'12:00', opts:['12:00','6:00','3:00','9:00']},
+  {h:1,  m:30, label:'1:30',  opts:['1:30','3:30','6:30','12:30']},
+  {h:4,  m:30, label:'4:30',  opts:['4:30','1:30','7:30','10:30']},
+  {h:7,  m:0,  label:'7:00',  opts:['7:00','1:00','4:00','10:00']},
+  {h:10, m:30, label:'10:30', opts:['10:30','2:30','5:30','8:30']},
+];
+
+function rnd(a,b){ return Math.floor(Math.random()*(b-a+1))+a; }
+function shuffle(a){ for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a; }
+
+// ========== QUESTION GENERATOR ==========
+function generateQuestion(topic){
+  const q={topic};
+  if(topic==='counting'){
+    const em=pick(EMOJIS_MAP.counting), n=rnd(1,10);
+    q.visual=em.repeat(n); q.text='How many '+em+'?'; q.hint='Count them all!'; q.answer=n;
+    let opts=new Set([n]);
+    while(opts.size<4){let w=n+rnd(-3,3);if(w>0&&w!==n)opts.add(w);}
+    q.options=shuffle([...opts]); q.optType='num';
+  } else if(topic==='addition'){
+    const em=pick(EMOJIS_MAP.addition),a=rnd(1,9),b=rnd(1,9);
+    q.visual=em.repeat(Math.min(a,5))+' + '+em.repeat(Math.min(b,5));
+    q.text=`${a} + ${b} = ?`; q.hint='Add the numbers!'; q.answer=a+b;
+    let opts=new Set([a+b]);
+    while(opts.size<4){let w=(a+b)+rnd(-4,4);if(w>0&&w!==a+b)opts.add(w);}
+    q.options=shuffle([...opts]); q.optType='num';
+  } else if(topic==='subtraction'){
+    const em=pick(EMOJIS_MAP.subtraction),a=rnd(3,12),b=rnd(1,a);
+    q.visual=em.repeat(Math.min(a,8)); q.text=`${a} − ${b} = ?`; q.hint='Take away!'; q.answer=a-b;
+    let opts=new Set([a-b]);
+    while(opts.size<4){let w=(a-b)+rnd(-4,4);if(w>=0&&w!==a-b)opts.add(w);}
+    q.options=shuffle([...opts]); q.optType='num';
+  } else if(topic==='multiplication'){
+    const em=pick(EMOJIS_MAP.multiplication),a=rnd(1,5),b=rnd(1,5);
+    q.visual=(em.repeat(b)+' ').repeat(Math.min(a,4)).trim();
+    q.text=`${a} × ${b} = ?`; q.hint='Groups of!'; q.answer=a*b;
+    let opts=new Set([a*b]);
+    while(opts.size<4){let w=(a*b)+rnd(-5,5);if(w>0&&w!==a*b)opts.add(w);}
+    q.options=shuffle([...opts]); q.optType='num';
+  } else if(topic==='division'){
+    const em=pick(EMOJIS_MAP.division),b=rnd(2,4),a=b*rnd(2,5);
+    q.visual=em.repeat(Math.min(a,10)); q.text=`${a} ÷ ${b} = ?`; q.hint='Share equally!'; q.answer=a/b;
+    let opts=new Set([a/b]);
+    while(opts.size<4){let w=(a/b)+rnd(-3,3);if(w>0&&w!==a/b)opts.add(w);}
+    q.options=shuffle([...opts]); q.optType='num';
+  } else if(topic==='shapes'){
+    const sd=pick(SHAPE_DATA);
+    q.visual=''; q.text=`Find the ${sd.name}!`; q.hint='Tap the right shape!';
+    q.answer=sd.emoji; q.options=shuffle([...sd.opts]); q.optType='shape';
+  } else if(topic==='patterns'){
+    const pd=pick(PATTERNS_DATA);
+    q.visual=pd.seq.join(' '); q.text='What comes next?'; q.hint='Look at the pattern!';
+    q.answer=pd.answer; q.options=shuffle([...pd.opts]); q.optType='pattern';
+  } else if(topic==='time'){
+    const td=pick(TIMES_DATA);
+    q.clockH=td.h; q.clockM=td.m;
+    q.visual='clock'; q.text='What time is it?'; q.hint='Read the clock hands!';
+    q.answer=td.label; q.options=shuffle([...td.opts]); q.optType='text';
+  }
+  return q;
+}
+
+function pick(arr){ return arr[rnd(0,arr.length-1)]; }
+
+// ========== NAVIGATION ==========
+function switchScreen(name){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(name).classList.add('active');
+  window.scrollTo(0,0);
+}
+function showHome(){ switchScreen('home'); updateHomeBanner(); }
+function showTopics(){ playClick(); switchScreen('topics'); }
+
+function startGame(topic){
+  playClick();
+  currentTopic=topic; currentQ=0; score=0;
+  questions=Array.from({length:TOTAL_Q},()=>generateQuestion(topic));
+  switchScreen('game'); renderQuestion();
+}
+function retryGame(){ startGame(currentTopic); }
+
+// ========== RENDER ==========
+function renderQuestion(){
+  const q=questions[currentQ];
+  document.getElementById('qCounter').textContent=`Q ${currentQ+1} / ${TOTAL_Q}`;
+  document.getElementById('scoreVal').textContent=score;
+  document.getElementById('progressBar').style.width=(currentQ/TOTAL_Q*100)+'%';
+  const lbl=document.getElementById('topicLabel');
+  lbl.textContent=LABELS_MAP[q.topic];
+  lbl.style.background=`linear-gradient(135deg,${COLORS_MAP[q.topic]},${COLORS_MAP[q.topic]}bb)`;
+
+  const vis=document.getElementById('questionVisual');
+  vis.innerHTML='';
+
+  if(q.topic==='counting'){
+    [...q.visual].forEach((e,i)=>{
+      const s=document.createElement('span');
+      s.className='cdot'; s.textContent=e;
+      s.style.animationDelay=(i*0.06)+'s';
+      vis.appendChild(s);
+    });
+  } else if(q.topic==='time'){
+    vis.appendChild(buildClock(q.clockH,q.clockM));
+  } else if(q.topic==='patterns'){
+    vis.textContent=q.visual;
+    vis.style.fontSize='32px';
+    vis.style.lineHeight='1.5';
+  } else {
+    vis.textContent=q.visual.substring(0,30);
+  }
+
+  document.getElementById('questionText').textContent=q.text;
+  document.getElementById('questionHint').textContent=q.hint;
+
+  const grid=document.getElementById('optionsGrid');
+  grid.innerHTML='';
+  q.options.forEach(opt=>{
+    const btn=document.createElement('button');
+    btn.className='option-btn';
+    if(q.optType==='shape') btn.classList.add('shape-opt');
+    if(q.optType==='pattern') btn.classList.add('pattern-opt');
+    btn.textContent=opt;
+    btn.onclick=()=>checkAnswer(btn,opt,q.answer);
+    grid.appendChild(btn);
+  });
+}
+
+function buildClock(h,m){
+  const svgNS='http://www.w3.org/2000/svg';
+  const svg=document.createElementNS(svgNS,'svg');
+  svg.setAttribute('viewBox','0 0 100 100');
+  svg.classList.add('clock-svg');
+
+  const face=document.createElementNS(svgNS,'circle');
+  face.setAttribute('cx','50'); face.setAttribute('cy','50'); face.setAttribute('r','46');
+  face.setAttribute('fill','#fff'); face.setAttribute('stroke','#333'); face.setAttribute('stroke-width','4');
+  svg.appendChild(face);
+
+  for(let i=0;i<12;i++){
+    const a=(i/12)*Math.PI*2-Math.PI/2;
+    const r1=38, r2=42;
+    const line=document.createElementNS(svgNS,'line');
+    line.setAttribute('x1',50+r1*Math.cos(a)); line.setAttribute('y1',50+r1*Math.sin(a));
+    line.setAttribute('x2',50+r2*Math.cos(a)); line.setAttribute('y2',50+r2*Math.sin(a));
+    line.setAttribute('stroke','#666'); line.setAttribute('stroke-width','1.5');
+    svg.appendChild(line);
+  }
+  // numbers
+  [12,3,6,9].forEach((n,i)=>{
+    const a=(i/4)*Math.PI*2-Math.PI/2;
+    const t=document.createElementNS(svgNS,'text');
+    t.setAttribute('x',50+30*Math.cos(a)); t.setAttribute('y',50+30*Math.sin(a));
+    t.setAttribute('text-anchor','middle'); t.setAttribute('dominant-baseline','central');
+    t.setAttribute('font-size','10'); t.setAttribute('font-family','Fredoka One,cursive');
+    t.setAttribute('fill','#333'); t.textContent=n; svg.appendChild(t);
+  });
+  // hour hand
+  const hAngle=((h%12)+m/60)/12*Math.PI*2-Math.PI/2;
+  const hHand=document.createElementNS(svgNS,'line');
+  hHand.setAttribute('x1','50'); hHand.setAttribute('y1','50');
+  hHand.setAttribute('x2',50+22*Math.cos(hAngle)); hHand.setAttribute('y2',50+22*Math.sin(hAngle));
+  hHand.setAttribute('stroke','#333'); hHand.setAttribute('stroke-width','4');
+  hHand.setAttribute('stroke-linecap','round'); svg.appendChild(hHand);
+  // minute hand
+  const mAngle=(m/60)*Math.PI*2-Math.PI/2;
+  const mHand=document.createElementNS(svgNS,'line');
+  mHand.setAttribute('x1','50'); mHand.setAttribute('y1','50');
+  mHand.setAttribute('x2',50+32*Math.cos(mAngle)); mHand.setAttribute('y2',50+32*Math.sin(mAngle));
+  mHand.setAttribute('stroke','#EC4899'); mHand.setAttribute('stroke-width','3');
+  mHand.setAttribute('stroke-linecap','round'); svg.appendChild(mHand);
+  // center
+  const dot=document.createElementNS(svgNS,'circle');
+  dot.setAttribute('cx','50'); dot.setAttribute('cy','50'); dot.setAttribute('r','4');
+  dot.setAttribute('fill','#333'); svg.appendChild(dot);
+  return svg;
+}
+
+// ========== ANSWER CHECK ==========
+const okMsgs=['Amazing! 🎉','Super! ⭐','Wow! 🌟','Perfect! 🏆','Great job! 🎊','Fantastic! 🌈'];
+const noMsgs=['Almost! 💪','Try again! 🤗','Keep going! 🌈','You got this! ✨'];
+
+function checkAnswer(btn, chosen, correct){
+  document.querySelectorAll('.option-btn').forEach(b=>b.disabled=true);
+  stats.totalQs++;
+  stats.topics[currentTopic].played++;
+  if(chosen===correct){
+    btn.classList.add('correct');
+    score++; stats.totalCorrect++; stats.totalStars++;
+    stats.topics[currentTopic].correct++;
+    playCorrect();
+    if(confettiOn) launchConfetti();
+    showFeedback(true);
+  } else {
+    btn.classList.add('wrong');
+    document.querySelectorAll('.option-btn').forEach(b=>{ if(b.textContent==correct) b.classList.add('correct'); });
+    playWrong();
+    showFeedback(false);
+  }
+  setTimeout(()=>{
+    hideFeedback();
+    currentQ++;
+    if(currentQ>=TOTAL_Q) showResult();
+    else renderQuestion();
+  },1400);
+}
+
+function showFeedback(ok){
+  const o=document.getElementById('feedbackOverlay');
+  document.getElementById('feedbackEmoji').textContent=ok?pick(['🎉','⭐','🏆','🌟','🎊']):pick(['💪','😊','🤗','🌈']);
+  document.getElementById('feedbackText').textContent=ok?pick(okMsgs):pick(noMsgs);
+  o.classList.add('show');
+}
+function hideFeedback(){ document.getElementById('feedbackOverlay').classList.remove('show'); }
+
+// ========== RESULT ==========
+function showResult(){
+  stats.gamesPlayed++;
+  const pct=score/TOTAL_Q;
+  if(pct===1) playWin();
+  let emoji,title,sub;
+  if(pct===1){emoji='🏆';title='PERFECT!';sub='You got everything right! You are a star!'}
+  else if(pct>=0.6){emoji='🌟';title='Awesome!';sub='Really great work! Keep it up!'}
+  else{emoji='💪';title='Good Try!';sub='Practice makes perfect. Try again!'}
+  document.getElementById('resultEmoji').textContent=emoji;
+  document.getElementById('resultTitle').textContent=title;
+  document.getElementById('resultSub').textContent=sub;
+  document.getElementById('resultScore').textContent=`⭐ ${score} / ${TOTAL_Q} Correct`;
+  const starsEl=document.getElementById('resultStars');
+  starsEl.innerHTML='';
+  const sc=pct===1?3:pct>=0.6?2:1;
+  for(let i=0;i<3;i++){
+    const s=document.createElement('span'); s.className='rs';
+    s.textContent=i<sc?'⭐':'☆';
+    s.style.animationDelay=(i*0.2+0.3)+'s';
+    starsEl.appendChild(s);
+  }
+  if(pct===1&&confettiOn) launchConfetti(60);
+  updateHomeBanner();
+  switchScreen('result');
+}
+
+function updateHomeBanner(){
+  document.getElementById('totalStars').textContent=stats.totalStars+' Stars';
+  document.getElementById('totalGames').textContent=stats.gamesPlayed+' Games';
+}
+
+// ========== CONFETTI ==========
+function launchConfetti(count=30){
+  if(!confettiOn) return;
+  const cols=['#FFD93D','#FF6B35','#EC4899','#A855F7','#6366F1','#6BCB77','#14B8A6'];
+  for(let i=0;i<count;i++){
+    const p=document.createElement('div'); p.className='confetti-piece';
+    p.style.cssText=`left:${rnd(5,95)}vw;top:-20px;background:${pick(cols)};width:${rnd(8,14)}px;height:${rnd(8,14)}px;border-radius:${rnd(0,1)?'50%':'3px'};animation-duration:${rnd(12,24)/10}s;animation-delay:${rnd(0,10)/10}s`;
+    document.body.appendChild(p);
+    setTimeout(()=>p.remove(),2800);
+  }
+}
+
+// ========== PARENT DASHBOARD ==========
+let pinEntry='';
+function openParent(){
+  playClick();
+  document.getElementById('pinGate').style.display='flex';
+  pinEntry=''; updatePinDots();
+}
+function closePinGate(){ document.getElementById('pinGate').style.display='none'; pinEntry=''; updatePinDots(); }
+function updatePinDots(){
+  for(let i=0;i<4;i++){
+    const d=document.getElementById('pd'+i);
+    if(i<pinEntry.length) d.classList.add('filled'); else d.classList.remove('filled');
+  }
+}
+function pinPress(v){
+  playClick();
+  document.getElementById('pinError').textContent='';
+  if(v==='X'){ pinEntry=pinEntry.slice(0,-1); updatePinDots(); return; }
+  if(pinEntry.length>=4) return;
+  pinEntry+=v; updatePinDots();
+  if(pinEntry.length===4){
+    if(pinEntry==='1234'){
+      closePinGate(); loadParentData(); switchScreen('parent');
+    } else {
+      document.getElementById('pinError').textContent='Wrong PIN. Try 1234!';
+      pinEntry=''; updatePinDots();
+    }
+  }
+}
+
+function loadParentData(){
+  document.getElementById('pStars').textContent=stats.totalStars+' ⭐';
+  document.getElementById('pGames').textContent=stats.gamesPlayed;
+  document.getElementById('pQs').textContent=stats.totalQs;
+  const acc=stats.totalQs?Math.round(stats.totalCorrect/stats.totalQs*100)+'%':'—';
+  const accEl=document.getElementById('pAccuracy');
+  accEl.textContent=acc;
+  const pct=stats.totalQs?stats.totalCorrect/stats.totalQs:0;
+  accEl.className='stat-val '+(pct>=0.8?'good':pct>=0.5?'med':'low');
+
+  let favT='—', favMax=0;
+  TOPICS.forEach(t=>{ if(stats.topics[t].played>favMax){favMax=stats.topics[t].played;favT=LABELS_MAP[t];} });
+  document.getElementById('pFav').textContent=favMax?favT:'—';
+
+  // topic perf
+  const perf=document.getElementById('topicPerf');
+  perf.innerHTML='';
+  TOPICS.forEach(t=>{
+    const td=stats.topics[t];
+    const pct=td.played?Math.round(td.correct/td.played*100):0;
+    const row=document.createElement('div'); row.className='topic-row';
+    const color=COLORS_MAP[t];
+    row.innerHTML=`
+      <span class="topic-row-em">${LABELS_MAP[t].split(' ')[0]}</span>
+      <span class="topic-row-name">${LABELS_MAP[t].slice(3)}</span>
+      <div class="mini-bar-wrap"><div class="mini-bar" style="width:${pct}%;background:${color}"></div></div>
+      <span class="topic-row-pct">${td.played?pct+'%':'—'}</span>
+    `;
+    perf.appendChild(row);
+  });
+
+  // achievements
+  const achs=[
+    {name:'First Star',emoji:'⭐',unlocked:stats.totalStars>=1},
+    {name:'10 Stars',emoji:'🌟',unlocked:stats.totalStars>=10},
+    {name:'Perfect!',emoji:'🏆',unlocked:TOPICS.some(t=>stats.topics[t].correct>0&&stats.topics[t].correct===stats.topics[t].played&&stats.topics[t].played>=5)},
+    {name:'Explorer',emoji:'🗺️',unlocked:Object.values(stats.topics).filter(t=>t.played>0).length>=5},
+    {name:'Math Pro',emoji:'🧮',unlocked:stats.totalCorrect>=20},
+    {name:'5 Games',emoji:'🎮',unlocked:stats.gamesPlayed>=5},
+    {name:'Shape Master',emoji:'🔷',unlocked:stats.topics.shapes.correct>=3},
+    {name:'Pattern Pro',emoji:'🔴',unlocked:stats.topics.patterns.correct>=3},
+    {name:'Time Keeper',emoji:'🕐',unlocked:stats.topics.time.correct>=3},
+  ];
+  const ag=document.getElementById('achievementsGrid');
+  ag.innerHTML='';
+  achs.forEach(a=>{
+    const d=document.createElement('div');
+    d.className='ach-badge'+(a.unlocked?' unlocked':'');
+    d.innerHTML=a.unlocked
+      ?`<span class="ach-emoji">${a.emoji}</span><span class="ach-name">${a.name}</span>`
+      :`<span class="lock-overlay">🔒</span><span class="ach-name">${a.name}</span>`;
+    ag.appendChild(d);
+  });
+}
+
+function setQPerRound(n){
+  TOTAL_Q=n;
+  document.getElementById('qBtn5').style.background=n===5?'#6366F1':'rgba(255,255,255,.1)';
+  document.getElementById('qBtn10').style.background=n===10?'#6366F1':'rgba(255,255,255,.1)';
+  document.getElementById('qBtn5').style.borderColor=n===5?'#6366F1':'rgba(255,255,255,.3)';
+  document.getElementById('qBtn10').style.borderColor=n===10?'#6366F1':'rgba(255,255,255,.3)';
+}
+
+function resetProgress(){
+  if(confirm('Reset all progress? This cannot be undone.')){
+    stats={totalStars:0,gamesPlayed:0,totalQs:0,totalCorrect:0,topics:{}};
+    TOPICS.forEach(t=>{stats.topics[t]={played:0,correct:0};});
+    updateHomeBanner(); loadParentData();
+  }
+}
+
+updateHomeBanner();
+</script>
+</body>
+</html>
