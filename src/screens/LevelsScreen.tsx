@@ -40,7 +40,7 @@ export default function LevelsScreen() {
         
         <View style={styles.hintBanner}>
           <Text style={styles.hintText}>
-            ⭐ Level 1 is FREE · 👑 Levels 2–10 need MathLand Pro
+            ⭐ Level 1 is FREE · 👑 Levels 2–10 need MathMoppet Pro
           </Text>
         </View>
         

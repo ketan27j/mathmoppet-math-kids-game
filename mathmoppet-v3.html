@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>MathLand 🌈 v3 — 10 Levels</title>
+<title>MathMoppet 🌈 v3 — 10 Levels</title>
 <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet"/>
 <style>
 :root{
@@ -249,7 +249,7 @@ body{font-family:'Nunito',sans-serif;background:linear-gradient(180deg,var(--sky
 <!-- HOME -->
 <div id="home" class="screen active">
   <span class="mascot">🦁</span>
-  <div class="logo">MathLand</div>
+  <div class="logo">MathMoppet</div>
   <div class="tagline">🌈 A Math Adventure for Kids!</div>
   <button class="play-btn" onclick="go('topics');updateTopic()">▶ Let's Play!</button>
   <div class="home-btns">
@@ -259,7 +259,7 @@ body{font-family:'Nunito',sans-serif;background:linear-gradient(180deg,var(--sky
   <div class="stats-banner">
     <span id="hStars">⭐ 0 Stars</span><div class="sdiv"></div><span id="hGames">🏆 0 Games</span>
   </div>
-  <div class="pro-ribbon" id="proRibbon">👑 MathLand Pro Active</div>
+  <div class="pro-ribbon" id="proRibbon">👑 MathMoppet Pro Active</div>
 </div>
 
 <!-- TOPICS -->
@@ -282,7 +282,7 @@ body{font-family:'Nunito',sans-serif;background:linear-gradient(180deg,var(--sky
 <div id="levels" class="screen">
   <div class="stitle" id="lvTitle">🍎 Counting — Levels</div>
   <div class="levels-hint">
-    <span>⭐ Level 1 is FREE &nbsp;·&nbsp; </span><span style="color:#FFD93D">👑 Levels 2–10 need MathLand Pro ($10/mo)</span>
+    <span>⭐ Level 1 is FREE &nbsp;·&nbsp; </span><span style="color:#FFD93D">👑 Levels 2–10 need MathMoppet Pro ($10/mo)</span>
   </div>
   <div class="levels-grid" id="lvGrid"></div>
   <button class="back-btn" onclick="go('topics')">← Topics</button>
@@ -327,7 +327,7 @@ body{font-family:'Nunito',sans-serif;background:linear-gradient(180deg,var(--sky
     <button class="pw-close" onclick="go('topics')">✕</button>
     <div class="pw-glow"></div>
     <span class="pw-crown">👑</span>
-    <div class="pw-title">MathLand Pro</div>
+    <div class="pw-title">MathMoppet Pro</div>
     <div class="pw-sub">Unlock all 80 levels across 8 topics!</div>
     <div class="pw-feats">
       <div class="pw-feat"><span class="fi">🎯</span><span><b>10 difficulty levels</b> per topic (80 total)</span></div>
@@ -423,7 +423,7 @@ function canPlay(lv){return lv===1||isPro}
 function subscribe(){
   isPro=true;
   updateSubUI();
-  alert('🎉 Welcome to MathLand Pro!\n\n✅ All 80 levels across 8 topics are now unlocked!\n\nIn a real app this processes your $10/month payment via App Store or Google Play and you get a 7-day free trial.');
+  alert('🎉 Welcome to MathMoppet Pro!\n\n✅ All 80 levels across 8 topics are now unlocked!\n\nIn a real app this processes your $10/month payment via App Store or Google Play and you get a 7-day free trial.');
   go('topics');updateTopic();
 }
 function restorePurchase(){
@@ -432,7 +432,7 @@ function restorePurchase(){
 }
 function updateSubUI(){
   document.getElementById('proRibbon').style.display=isPro?'inline-flex':'none';
-  document.getElementById('subTxt').textContent=isPro?'👑 MathLand Pro — Active':'Free Plan';
+  document.getElementById('subTxt').textContent=isPro?'👑 MathMoppet Pro — Active':'Free Plan';
   document.getElementById('subBtn').textContent=isPro?'Manage →':'Upgrade →';
   document.getElementById('subBtn').onclick=isPro?()=>alert('Manage in App Store / Google Play Settings.'):()=>go('paywall');
 }

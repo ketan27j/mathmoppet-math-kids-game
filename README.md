@@ -1,4 +1,4 @@
-# 🌈 MathLand — Kids Math Adventure App
+# 🌈 MathMoppet-Math Kids game — Kids Math Adventure App
 
 A colorful, engaging math learning game for kids aged 4–6,
 built with **React Native + Expo**.
@@ -8,7 +8,7 @@ built with **React Native + Expo**.
 ## 📁 Project Structure
 
 ```
-mathland-app/
+mathmoppet-math-kids-game/
 ├── app/                        # Expo Router screens (file-based routing)
 │   ├── _layout.tsx             # Root layout, font loading, navigation stack
 │   ├── index.tsx               # Home screen  → /
@@ -75,7 +75,7 @@ mathland-app/
 
 ### 1. Install dependencies
 ```bash
-cd mathland-app
+cd mathmoppet-math-kids-game
 npm install
 ```
 

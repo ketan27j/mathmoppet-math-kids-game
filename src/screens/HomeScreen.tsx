@@ -47,7 +47,7 @@ export default function HomeScreen() {
         </Animated.Text>
 
         {/* Logo */}
-        <Text style={styles.logo}>MathLand</Text>
+        <Text style={styles.logo}>MathMoppet</Text>
         <Text style={styles.tagline}>🌈 A Math Adventure for Kids!</Text>
 
         {/* Play Button */}

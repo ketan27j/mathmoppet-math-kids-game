@@ -60,7 +60,7 @@ const defaultTopicStats = (): Record<string, TopicStats> => {
   return out;
 };
 
-const STORAGE_KEY = '@mathland_stats_v3';
+const STORAGE_KEY = '@mathmoppet_stats_v3';
 
 export const useStore = create<AppState>((set, get) => ({
   totalStars:   0,

@@ -14,7 +14,7 @@ export default function PaywallScreen() {
     playClick();
     activatePro();
     router.back();
-    alert('🎉 Welcome to MathLand Pro!\n\n✅ All 80 levels across 8 topics are now unlocked!');
+    alert('🎉 Welcome to MathMoppet Pro!\n\n✅ All 80 levels across 8 topics are now unlocked!');
   };
   
   const handleRestore = () => {
@@ -47,7 +47,7 @@ export default function PaywallScreen() {
           <View style={styles.glowBackground} />
           
           <Text style={styles.crown}>👑</Text>
-          <Text style={styles.title}>MathLand Pro</Text>
+          <Text style={styles.title}>MathMoppet Pro</Text>
           <Text style={styles.subtitle}>Unlock all 80 levels across 8 topics!</Text>
           
           <View style={styles.featuresList}>

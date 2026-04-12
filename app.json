@@ -14,7 +14,7 @@
     "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "com.yourname.mathland",
+      "bundleIdentifier": "com.yourname.mathmoppet",
       "buildNumber": "1"
     },
     "android": {
@@ -22,7 +22,7 @@
         "foregroundImage": "./assets/adaptive-icon.svg",
         "backgroundColor": "#87CEEB"
       },
-      "package": "com.yourname.mathland",
+      "package": "com.yourname.mathmoppet",
       "versionCode": 1
     },
     "web": {
@@ -36,7 +36,7 @@
         { "microphonePermission": false }
       ]
     ],
-    "scheme": "mathland",
+    "scheme": "mathmoppet",
     "extra": {
       "eas": { "projectId": "YOUR_EAS_PROJECT_ID" }
     }
