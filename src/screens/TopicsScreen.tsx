@@ -1,23 +1,45 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import {
   View, Text, TouchableOpacity, StyleSheet,
-  ScrollView, Dimensions,
+  ScrollView, Dimensions, Animated,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import { useStore } from '../store/useStore';
 import { useSound } from '../hooks/useSound';
 import {
-  COLORS, FONTS, TOPIC_COLORS, TOPIC_LABELS,
+  FONTS, TOPIC_LABELS,
   TOPIC_EMOJIS, TOPIC_DESCRIPTIONS, ALL_TOPICS,
 } from '../constants/theme';
 
 const { width } = Dimensions.get('window');
 const CARD_W = (width - 48 - 12) / 2;
 
+const TOPIC_GRADIENTS: Record<string, [string, string]> = {
+  counting:       ['#FFE55C', '#FFB700'],
+  addition:       ['#7EE47E', '#3DAF3D'],
+  subtraction:    ['#F8A0CC', '#E91E8C'],
+  multiplication: ['#9EA2FB', '#5558EF'],
+  division:       ['#FFAA78', '#E85A00'],
+  shapes:         ['#5EE5DC', '#0FA89D'],
+  patterns:       ['#CC88FA', '#9333EA'],
+  time:           ['#FFAA50', '#EA6C00'],
+};
+
 export default function TopicsScreen() {
   const { setCurrentTopic } = useStore();
   const { playClick } = useSound();
+
+  const cardAnims = useRef(ALL_TOPICS.map(() => new Animated.Value(0))).current;
+
+  useEffect(() => {
+    Animated.stagger(
+      70,
+      cardAnims.map(a =>
+        Animated.spring(a, { toValue: 1, friction: 6, tension: 80, useNativeDriver: true })
+      )
+    ).start();
+  }, []);
 
   const handleTopic = (topic: string) => {
     playClick();
@@ -27,27 +49,51 @@ export default function TopicsScreen() {
 
   return (
     <LinearGradient
-      colors={['#87CEEB', '#B0E0FF', '#6BCB77', '#4CAF50']}
-      locations={[0, 0.38, 0.38, 1]}
+      colors={['#0F2040', '#1a3060', '#2C4E80']}
       style={{ flex: 1 }}
     >
-      <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
-        <Text style={styles.title}>🎯 Choose Your Adventure!</Text>
+      <ScrollView
+        contentContainerStyle={styles.container}
+        showsVerticalScrollIndicator={false}
+      >
+        <Text style={styles.title}>🎯 Choose a Topic!</Text>
+        <Text style={styles.subtitle}>Pick your adventure and start learning</Text>
 
         <View style={styles.grid}>
-          {ALL_TOPICS.map((topic) => (
-            <TouchableOpacity
-              key={topic}
-              style={[styles.card, { borderColor: TOPIC_COLORS[topic] }]}
-              onPress={() => handleTopic(topic)}
-              activeOpacity={0.8}
-            >
-              <Text style={styles.cardEmoji}>{TOPIC_EMOJIS[topic]}</Text>
-              <Text style={styles.cardName}>{TOPIC_LABELS[topic].slice(3)}</Text>
-              <Text style={styles.cardDesc}>{TOPIC_DESCRIPTIONS[topic]}</Text>
-              <View style={[styles.cardAccent, { backgroundColor: TOPIC_COLORS[topic] }]} />
-            </TouchableOpacity>
-          ))}
+          {ALL_TOPICS.map((topic, index) => {
+            const anim = cardAnims[index];
+            const gradient = TOPIC_GRADIENTS[topic] ?? ['#ccc', '#999'];
+            const name = TOPIC_LABELS[topic].replace(/^\S+\s/, ''); // strip leading emoji
+
+            return (
+              <Animated.View
+                key={topic}
+                style={{
+                  opacity: anim,
+                  transform: [
+                    { scale: anim.interpolate({ inputRange: [0, 1], outputRange: [0.6, 1] }) },
+                    { translateY: anim.interpolate({ inputRange: [0, 1], outputRange: [20, 0] }) },
+                  ],
+                }}
+              >
+                <TouchableOpacity
+                  onPress={() => handleTopic(topic)}
+                  activeOpacity={0.82}
+                >
+                  <LinearGradient
+                    colors={gradient}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 1 }}
+                    style={styles.card}
+                  >
+                    <Text style={styles.cardEmoji}>{TOPIC_EMOJIS[topic]}</Text>
+                    <Text style={styles.cardName}>{name}</Text>
+                    <Text style={styles.cardDesc}>{TOPIC_DESCRIPTIONS[topic]}</Text>
+                  </LinearGradient>
+                </TouchableOpacity>
+              </Animated.View>
+            );
+          })}
         </View>
 
         <TouchableOpacity style={styles.backBtn} onPress={() => router.back()} activeOpacity={0.8}>
@@ -61,40 +107,48 @@ export default function TopicsScreen() {
 const styles = StyleSheet.create({
   container: {
     flexGrow: 1, alignItems: 'center',
-    paddingHorizontal: 18, paddingVertical: 28,
+    paddingHorizontal: 18, paddingTop: 36, paddingBottom: 32,
   },
   title: {
-    fontFamily: FONTS.display, fontSize: 30, color: '#fff',
-    textShadowColor: 'rgba(0,0,0,0.2)', textShadowOffset: { width: 2, height: 3 }, textShadowRadius: 0,
-    marginBottom: 24, textAlign: 'center',
+    fontFamily: FONTS.display, fontSize: 34, color: '#fff',
+    textShadowColor: 'rgba(0,0,0,0.3)',
+    textShadowOffset: { width: 2, height: 3 }, textShadowRadius: 0,
+    marginBottom: 6, textAlign: 'center',
+  },
+  subtitle: {
+    fontFamily: FONTS.body, fontSize: 14, color: 'rgba(255,255,255,0.65)',
+    marginBottom: 28, textAlign: 'center',
   },
   grid: {
     flexDirection: 'row', flexWrap: 'wrap',
-    gap: 12, justifyContent: 'center', marginBottom: 28,
+    gap: 12, justifyContent: 'center', marginBottom: 32,
   },
   card: {
-    width: CARD_W, backgroundColor: 'rgba(255,255,255,0.97)',
-    borderRadius: 22, borderWidth: 4,
-    paddingVertical: 20, paddingHorizontal: 12,
-    alignItems: 'center', overflow: 'hidden',
-    shadowColor: '#000', shadowOpacity: 0.12,
-    shadowOffset: { width: 0, height: 6 }, shadowRadius: 14, elevation: 8,
+    width: CARD_W,
+    borderRadius: 28,
+    paddingVertical: 24, paddingHorizontal: 14,
+    alignItems: 'center',
+    borderWidth: 3, borderColor: 'rgba(255,255,255,0.3)',
+    shadowColor: '#000', shadowOpacity: 0.25,
+    shadowOffset: { width: 0, height: 8 }, shadowRadius: 18,
+    elevation: 10,
   },
-  cardEmoji: { fontSize: 42, marginBottom: 10 },
+  cardEmoji: { fontSize: 60, marginBottom: 10 },
   cardName: {
-    fontFamily: FONTS.display, fontSize: 17, color: '#1F2937', marginBottom: 4,
+    fontFamily: FONTS.display, fontSize: 20, color: '#fff',
+    marginBottom: 4, textAlign: 'center',
+    textShadowColor: 'rgba(0,0,0,0.2)',
+    textShadowOffset: { width: 1, height: 2 }, textShadowRadius: 0,
   },
   cardDesc: {
-    fontFamily: FONTS.bodyBold, fontSize: 11, color: '#9CA3AF',
-  },
-  cardAccent: {
-    position: 'absolute', bottom: 0, left: 0, right: 0, height: 5, borderRadius: 0,
+    fontFamily: FONTS.bodyBold, fontSize: 12,
+    color: 'rgba(255,255,255,0.82)', textAlign: 'center',
   },
   backBtn: {
     backgroundColor: '#fff', borderRadius: 50,
-    paddingVertical: 12, paddingHorizontal: 28,
-    shadowColor: '#000', shadowOpacity: 0.1,
-    shadowOffset: { width: 0, height: 4 }, shadowRadius: 10, elevation: 4,
+    paddingVertical: 13, paddingHorizontal: 32,
+    shadowColor: '#000', shadowOpacity: 0.12,
+    shadowOffset: { width: 0, height: 5 }, shadowRadius: 12, elevation: 5,
   },
-  backBtnText: { fontFamily: FONTS.display, fontSize: 18, color: '#555' },
+  backBtnText: { fontFamily: FONTS.display, fontSize: 18, color: '#333' },
 });

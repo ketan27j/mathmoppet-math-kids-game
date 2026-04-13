@@ -1,216 +1,226 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
+import React, { useEffect, useRef } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Animated, Dimensions } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import { useStore } from '../store/useStore';
 import { useSound } from '../hooks/useSound';
 import { TOPIC_COLORS, TOPIC_LABELS as TOPIC_NAMES, FONTS } from '../constants/theme';
 
+const { width } = Dimensions.get('window');
+const CARD_W = (width - 36 - 12) / 2;   // 2-per-row, 18px padding each side, 12px gap
+
+const DIFFICULTY = [
+  '', 'Starter', 'Easy', 'Getting There', 'Warm Up',
+  'Medium', 'Picking Up', 'Challenging', 'Hard', 'Super Hard', 'Expert!',
+];
+
 export default function LevelsScreen() {
-  const { currentTopic, topicStats, isPro, setCurrentLevel } = useStore();
+  const { currentTopic, topicStats, setCurrentLevel } = useStore();
   const { playClick } = useSound();
-  
-  const canPlayLevel = (level: number) => level === 1 || isPro;
+
+  const topicColor   = TOPIC_COLORS[currentTopic] ?? '#6BCB77';
   const highestLevel = topicStats[currentTopic]?.highestLevel || 0;
-  
+
+  const cardAnims = useRef(Array.from({ length: 10 }, () => new Animated.Value(0))).current;
+  const glowAnim  = useRef(new Animated.Value(0.4)).current;
+
+  useEffect(() => {
+    // Stagger cards in
+    Animated.stagger(
+      55,
+      cardAnims.map(a =>
+        Animated.spring(a, { toValue: 1, friction: 6, tension: 80, useNativeDriver: true })
+      )
+    ).start();
+
+    // Current-level glow pulse
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(glowAnim, { toValue: 1,   duration: 900, useNativeDriver: true }),
+        Animated.timing(glowAnim, { toValue: 0.4, duration: 900, useNativeDriver: true }),
+      ])
+    ).start();
+  }, []);
+
   const handleLevelPress = (level: number) => {
     playClick();
-    if (!canPlayLevel(level)) {
-      router.push('/paywall');
-      return;
-    }
     setCurrentLevel(level);
     router.push('/game');
-  };
-  
-  const handleBack = () => {
-    playClick();
-    router.push('/topics');
   };
 
   return (
     <LinearGradient
-      colors={['#87CEEB', '#B0E0FF', '#6BCB77', '#4CAF50']}
-      locations={[0, 0.38, 0.38, 1]}
-      style={styles.container}
+      colors={[topicColor + 'FF', topicColor + 'AA', '#1a2f50']}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 0.6, y: 1 }}
+      style={{ flex: 1 }}
     >
-      <ScrollView contentContainerStyle={styles.inner} showsVerticalScrollIndicator={false}>
-        
-        <Text style={styles.title}>{TOPIC_NAMES[currentTopic]} — Levels</Text>
-        
-        <View style={styles.hintBanner}>
-          <Text style={styles.hintText}>
-            ⭐ Level 1 is FREE · 👑 Levels 2–10 need MathMoppet Pro
-          </Text>
+      <ScrollView
+        contentContainerStyle={styles.container}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Header */}
+        <Text style={styles.topicName}>{TOPIC_NAMES[currentTopic]}</Text>
+        <Text style={styles.heading}>Level Up! 🚀</Text>
+
+        {/* Free badge */}
+        <View style={styles.freeBadge}>
+          <Text style={styles.freeBadgeText}>⭐ All 10 Levels FREE</Text>
         </View>
-        
+
+        {/* Level grid */}
         <View style={styles.grid}>
           {Array.from({ length: 10 }, (_, i) => i + 1).map(level => {
-            const stars = topicStats[currentTopic]?.stars?.[level] || 0;
-            const done = stars > 0;
-            const locked = !canPlayLevel(level);
-            const isCurrent = !done && (level === 1 || (highestLevel === level - 1 && canPlayLevel(level)));
-            
+            const stars     = topicStats[currentTopic]?.stars?.[level] || 0;
+            const done      = stars > 0;
+            const isCurrent = !done && (level === 1 || highestLevel === level - 1);
+
+            const cardBg   = done      ? topicColor          : 'rgba(255,255,255,0.95)';
+            const numColor = done      ? '#fff'               : topicColor;
+            const diffColor= done      ? 'rgba(255,255,255,0.8)' : '#9CA3AF';
+
             return (
-              <TouchableOpacity
+              <Animated.View
                 key={level}
-                style={[
-                  styles.levelButton,
-                  done && { borderColor: TOPIC_COLORS[currentTopic], backgroundColor: `${TOPIC_COLORS[currentTopic]}15` },
-                  isCurrent && !locked && styles.currentLevel,
-                  locked && styles.lockedLevel
-                ]}
-                onPress={() => handleLevelPress(level)}
-                activeOpacity={locked ? 1 : 0.8}
+                style={{
+                  opacity: cardAnims[level - 1],
+                  transform: [
+                    { scale: cardAnims[level - 1].interpolate({ inputRange: [0, 1], outputRange: [0.5, 1] }) },
+                    { translateY: cardAnims[level - 1].interpolate({ inputRange: [0, 1], outputRange: [30, 0] }) },
+                  ],
+                }}
               >
-                {locked && <Text style={styles.lockIcon}>🔒</Text>}
-                <Text style={[styles.levelNumber, { color: locked ? '#bbb' : TOPIC_COLORS[currentTopic] }]}>
-                  {level}
-                </Text>
-                <Text style={styles.starsText}>
-                  {done ? '⭐'.repeat(stars) + '☆'.repeat(3 - stars) : ''}
-                </Text>
-                <View style={[
-                  styles.levelTag,
-                  locked ? styles.tagLocked : level === 1 ? styles.tagFree : styles.tagPro
-                ]}>
-                  <Text style={styles.tagText}>
-                    {locked ? '🔒 Pro' : level === 1 ? 'FREE' : '👑 Pro'}
-                  </Text>
-                </View>
-                <Text style={styles.diffText}>
-                  {['', 'Starter', 'Easy', 'Getting There', 'Warm Up', 'Medium', 'Picking Up', 'Challenging', 'Hard', 'Super Hard', 'Expert!'][level]}
-                </Text>
-              </TouchableOpacity>
+                {isCurrent ? (
+                  // Current level: animated glow border
+                  <Animated.View
+                    style={[
+                      styles.cardGlowRing,
+                      {
+                        borderColor: topicColor,
+                        shadowColor: topicColor,
+                        shadowOpacity: glowAnim,
+                      },
+                    ]}
+                  >
+                    <TouchableOpacity
+                      style={[styles.card, { backgroundColor: '#fff' }]}
+                      onPress={() => handleLevelPress(level)}
+                      activeOpacity={0.8}
+                    >
+                      <CardInner
+                        level={level} stars={stars} done={done}
+                        numColor={topicColor} diffColor={diffColor}
+                      />
+                    </TouchableOpacity>
+                  </Animated.View>
+                ) : (
+                  <TouchableOpacity
+                    style={[styles.card, { backgroundColor: cardBg }]}
+                    onPress={() => handleLevelPress(level)}
+                    activeOpacity={0.8}
+                  >
+                    <CardInner
+                      level={level} stars={stars} done={done}
+                      numColor={numColor} diffColor={diffColor}
+                    />
+                  </TouchableOpacity>
+                )}
+              </Animated.View>
             );
           })}
         </View>
-        
-        <TouchableOpacity style={styles.backButton} onPress={handleBack} activeOpacity={0.8}>
-          <Text style={styles.backButtonText}>← Topics</Text>
+
+        <TouchableOpacity style={styles.backBtn} onPress={() => router.push('/topics')} activeOpacity={0.8}>
+          <Text style={styles.backBtnText}>← Topics</Text>
         </TouchableOpacity>
-        
       </ScrollView>
     </LinearGradient>
   );
 }
 
+function CardInner({
+  level, stars, done, numColor, diffColor,
+}: {
+  level: number; stars: number; done: boolean; numColor: string; diffColor: string;
+}) {
+  return (
+    <>
+      <Text style={[styles.levelNum, { color: numColor }]}>{level}</Text>
+      <Text style={[styles.diffLabel, { color: diffColor }]}>{DIFFICULTY[level]}</Text>
+      <View style={styles.starsRow}>
+        {[1, 2, 3].map(i => (
+          <Text key={i} style={styles.starIcon}>
+            {i <= stars ? '⭐' : '☆'}
+          </Text>
+        ))}
+      </View>
+    </>
+  );
+}
+
 const styles = StyleSheet.create({
-  container: { flex: 1 },
-  inner: {
+  container: {
     flexGrow: 1,
     alignItems: 'center',
-    padding: 18,
-    paddingTop: 30,
-    paddingBottom: 40
+    paddingHorizontal: 18,
+    paddingTop: 36,
+    paddingBottom: 36,
   },
-  title: {
-    fontFamily: FONTS.display,
-    fontSize: 32,
-    color: '#fff',
+  topicName: {
+    fontFamily: FONTS.display, fontSize: 22, color: 'rgba(255,255,255,0.85)',
+    textAlign: 'center', marginBottom: 4,
+  },
+  heading: {
+    fontFamily: FONTS.display, fontSize: 38, color: '#fff',
     textShadowColor: 'rgba(0,0,0,0.2)',
-    textShadowOffset: { width: 2, height: 4 },
-    marginBottom: 20,
-    textAlign: 'center'
+    textShadowOffset: { width: 2, height: 3 }, textShadowRadius: 0,
+    marginBottom: 14, textAlign: 'center',
   },
-  hintBanner: {
-    backgroundColor: 'rgba(255,255,255,0.2)',
-    borderRadius: 14,
-    padding: 10,
-    marginBottom: 20,
-    maxWidth: 600,
-    width: '100%',
-    alignItems: 'center',
-    backdropFilter: 'blur(6px)'
+  freeBadge: {
+    backgroundColor: '#22C55E',
+    borderRadius: 50,
+    paddingVertical: 6, paddingHorizontal: 18,
+    marginBottom: 26,
+    shadowColor: '#15803d', shadowOpacity: 0.4,
+    shadowOffset: { width: 0, height: 3 }, shadowRadius: 6, elevation: 4,
   },
-  hintText: {
-    fontFamily: FONTS.display,
-    fontSize: 13,
-    color: '#fff'
+  freeBadgeText: {
+    fontFamily: FONTS.display, fontSize: 13, color: '#fff',
   },
   grid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 10,
-    maxWidth: 600,
-    width: '100%',
-    marginBottom: 20
+    flexDirection: 'row', flexWrap: 'wrap',
+    gap: 12, justifyContent: 'center',
+    width: '100%', maxWidth: 560, marginBottom: 28,
   },
-  levelButton: {
-    width: '18%',
-    minWidth: 70,
-    backgroundColor: 'rgba(255,255,255,0.97)',
-    borderRadius: 18,
-    padding: 12,
+
+  /* Glow ring wraps the "current" card */
+  cardGlowRing: {
+    borderRadius: 24, borderWidth: 4,
+    shadowOffset: { width: 0, height: 0 }, shadowRadius: 18, elevation: 12,
+  },
+
+  card: {
+    width: CARD_W,
+    borderRadius: 22,
+    paddingVertical: 20, paddingHorizontal: 10,
     alignItems: 'center',
-    justifyContent: 'center',
-    minHeight: 100,
-    borderWidth: 3,
-    borderColor: '#e5e7eb',
-    shadowColor: 'rgba(0,0,0,0.13)',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 1,
-    shadowRadius: 32,
-    elevation: 6
+    shadowColor: '#000', shadowOpacity: 0.1,
+    shadowOffset: { width: 0, height: 5 }, shadowRadius: 12, elevation: 6,
   },
-  currentLevel: {
-    shadowColor: 'rgba(99,102,241,0.3)',
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 1,
-    shadowRadius: 3
+  levelNum: {
+    fontFamily: FONTS.display, fontSize: 42, marginBottom: 2,
   },
-  lockedLevel: {
-    opacity: 0.75,
-    filter: 'grayscale(0.5)'
+  diffLabel: {
+    fontFamily: FONTS.display, fontSize: 10, marginBottom: 8, textAlign: 'center',
   },
-  lockIcon: {
-    fontSize: 18,
-    marginBottom: 2
+  starsRow: { flexDirection: 'row', gap: 2 },
+  starIcon: { fontSize: 13 },
+
+  backBtn: {
+    backgroundColor: '#fff', borderRadius: 50,
+    paddingVertical: 13, paddingHorizontal: 32,
+    shadowColor: '#000', shadowOpacity: 0.12,
+    shadowOffset: { width: 0, height: 5 }, shadowRadius: 12, elevation: 5,
   },
-  levelNumber: {
-    fontFamily: FONTS.display,
-    fontSize: 22
-  },
-  starsText: {
-    fontSize: 10,
-    letterSpacing: 1,
-    minHeight: 13,
-    marginTop: 3
-  },
-  levelTag: {
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: 8,
-    marginTop: 6
-  },
-  tagFree: { backgroundColor: '#D1FAE5' },
-  tagPro: { backgroundColor: '#FEF3C7' },
-  tagLocked: { backgroundColor: '#F3F4F6' },
-  tagText: {
-    fontFamily: FONTS.display,
-    fontSize: 9,
-    color: '#333'
-  },
-  diffText: {
-    fontFamily: FONTS.display,
-    fontSize: 9,
-    color: '#bbb',
-    marginTop: 3
-  },
-  backButton: {
-    backgroundColor: '#fff',
-    borderRadius: 50,
-    paddingHorizontal: 22,
-    paddingVertical: 10,
-    shadowColor: 'rgba(0,0,0,0.12)',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 1,
-    shadowRadius: 12,
-    elevation: 4
-  },
-  backButtonText: {
-    fontFamily: FONTS.display,
-    fontSize: 15,
-    color: '#555'
-  }
+  backBtnText: { fontFamily: FONTS.display, fontSize: 17, color: '#555' },
 });

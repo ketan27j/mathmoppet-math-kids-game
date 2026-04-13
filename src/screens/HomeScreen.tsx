@@ -1,62 +1,162 @@
 import React, { useEffect, useRef } from 'react';
 import {
   View, Text, TouchableOpacity, StyleSheet,
-  Animated, Dimensions, ScrollView,
+  Animated, Dimensions, StatusBar,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import { useStore } from '../store/useStore';
 import { useSound } from '../hooks/useSound';
-import { COLORS, FONTS } from '../constants/theme';
+import { FONTS } from '../constants/theme';
 
-const { width } = Dimensions.get('window');
+const { width, height } = Dimensions.get('window');
+
+function FloatingEmoji({
+  emoji, top, left, delay, size = 26,
+}: {
+  emoji: string; top: number; left: number; delay: number; size?: number;
+}) {
+  const bob     = useRef(new Animated.Value(0)).current;
+  const opacity = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    Animated.timing(opacity, {
+      toValue: 1, duration: 500, delay: delay + 300, useNativeDriver: true,
+    }).start();
+    Animated.loop(
+      Animated.sequence([
+        Animated.delay(delay),
+        Animated.timing(bob, { toValue: -14, duration: 1800, useNativeDriver: true }),
+        Animated.timing(bob, { toValue: 0,   duration: 1800, useNativeDriver: true }),
+      ])
+    ).start();
+  }, []);
+
+  return (
+    <Animated.Text
+      style={{
+        position: 'absolute', top, left, fontSize: size,
+        transform: [{ translateY: bob }], opacity, zIndex: 0,
+      }}
+    >
+      {emoji}
+    </Animated.Text>
+  );
+}
 
 export default function HomeScreen() {
   const { totalStars, gamesPlayed, loadFromStorage } = useStore();
   const { playClick } = useSound();
 
-  // Mascot bounce animation
   const bounceAnim = useRef(new Animated.Value(0)).current;
+  const scaleAnim  = useRef(new Animated.Value(1)).current;
+  const fadeAnim   = useRef(new Animated.Value(0)).current;
+  const slideAnim  = useRef(new Animated.Value(40)).current;
+
   useEffect(() => {
     loadFromStorage();
+
+    Animated.parallel([
+      Animated.timing(fadeAnim,  { toValue: 1, duration: 700, useNativeDriver: true }),
+      Animated.spring(slideAnim, { toValue: 0, friction: 7,   useNativeDriver: true }),
+    ]).start();
+
     Animated.loop(
       Animated.sequence([
-        Animated.timing(bounceAnim, { toValue: -16, duration: 700, useNativeDriver: true }),
+        Animated.timing(bounceAnim, { toValue: -18, duration: 700, useNativeDriver: true }),
         Animated.timing(bounceAnim, { toValue: 0,   duration: 700, useNativeDriver: true }),
+      ])
+    ).start();
+
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(scaleAnim, { toValue: 1.06, duration: 900, useNativeDriver: true }),
+        Animated.timing(scaleAnim, { toValue: 1,    duration: 900, useNativeDriver: true }),
       ])
     ).start();
   }, []);
 
-  const handlePlay = () => { playClick(); router.push('/topics'); };
+  const handlePlay   = () => { playClick(); router.push('/topics'); };
   const handleParent = () => { playClick(); router.push('/parent'); };
 
   return (
     <LinearGradient
-      colors={['#87CEEB', '#B0E0FF', '#6BCB77', '#4CAF50']}
-      locations={[0, 0.38, 0.38, 1]}
-      style={styles.container}
+      colors={['#6C3DD3', '#C44FA0', '#FF6B6B', '#FF9A3C']}
+      start={{ x: 0.1, y: 0 }}
+      end={{ x: 0.9, y: 1 }}
+      style={{ flex: 1 }}
     >
-      <ScrollView contentContainerStyle={styles.inner} showsVerticalScrollIndicator={false}>
+      <StatusBar barStyle="light-content" />
 
-        {/* Sun decoration */}
-        <View style={styles.sun} />
+      {/* Floating decorative emojis */}
+      <FloatingEmoji emoji="⭐" top={height * 0.06} left={width * 0.05}  delay={0}    size={28} />
+      <FloatingEmoji emoji="🌈" top={height * 0.04} left={width * 0.72}  delay={400}  size={32} />
+      <FloatingEmoji emoji="✨" top={height * 0.16} left={width * 0.88}  delay={800}  size={22} />
+      <FloatingEmoji emoji="🎈" top={height * 0.10} left={width * 0.14}  delay={200}  size={30} />
+      <FloatingEmoji emoji="💫" top={height * 0.74} left={width * 0.04}  delay={600}  size={26} />
+      <FloatingEmoji emoji="⭐" top={height * 0.80} left={width * 0.86}  delay={1000} size={22} />
+      <FloatingEmoji emoji="🍭" top={height * 0.70} left={width * 0.82}  delay={300}  size={30} />
 
+      <Animated.View
+        style={[
+          styles.inner,
+          { opacity: fadeAnim, transform: [{ translateY: slideAnim }] },
+        ]}
+      >
         {/* Mascot */}
-        <Animated.Text style={[styles.mascot, { transform: [{ translateY: bounceAnim }] }]}>
-          🦁
-        </Animated.Text>
+        <Animated.View style={{ transform: [{ translateY: bounceAnim }], marginBottom: 18 }}>
+          <View style={styles.mascotRing}>
+            <Text style={styles.mascot}>🦁</Text>
+          </View>
+        </Animated.View>
 
-        {/* Logo */}
-        <Text style={styles.logo}>MathMoppet</Text>
-        <Text style={styles.tagline}>🌈 A Math Adventure for Kids!</Text>
+        {/* Title */}
+        <Text style={styles.title}>MathMoppet</Text>
 
-        {/* Play Button */}
-        <TouchableOpacity style={styles.playBtn} onPress={handlePlay} activeOpacity={0.85}>
-          <Text style={styles.playBtnText}>▶  Let's Play!</Text>
-        </TouchableOpacity>
+        {/* Tagline pill */}
+        <View style={styles.taglinePill}>
+          <Text style={styles.taglineText}>🌈 The Fun Math Adventure!</Text>
+        </View>
 
-        {/* Secondary buttons */}
-        <View style={styles.secondaryRow}>
+        {/* Stats chips — only when the user has history */}
+        {(totalStars > 0 || gamesPlayed > 0) && (
+          <View style={styles.statsRow}>
+            <View style={styles.statChip}>
+              <Text style={styles.statEmoji}>⭐</Text>
+              <Text style={styles.statVal}>{totalStars}</Text>
+              <Text style={styles.statLabel}> Stars</Text>
+            </View>
+            <View style={styles.statChip}>
+              <Text style={styles.statEmoji}>🏆</Text>
+              <Text style={styles.statVal}>{gamesPlayed}</Text>
+              <Text style={styles.statLabel}> Games</Text>
+            </View>
+          </View>
+        )}
+
+        {/* 3-D Play button */}
+        <Animated.View
+          style={{ transform: [{ scale: scaleAnim }], width: '100%', alignItems: 'center' }}
+        >
+          <TouchableOpacity
+            style={styles.playBtnWrap}
+            onPress={handlePlay}
+            activeOpacity={0.88}
+          >
+            <LinearGradient
+              colors={['#FFE34D', '#FF9A3C']}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={styles.playBtnFace}
+            >
+              <Text style={styles.playBtnText}>▶  LET'S PLAY!</Text>
+            </LinearGradient>
+            <View style={styles.playBtnSlab} />
+          </TouchableOpacity>
+        </Animated.View>
+
+        {/* Secondary row */}
+        <View style={styles.secondRow}>
           <TouchableOpacity style={styles.secBtn} onPress={handleParent} activeOpacity={0.8}>
             <Text style={styles.secBtnText}>👨‍👩‍👧 Parents</Text>
           </TouchableOpacity>
@@ -64,81 +164,91 @@ export default function HomeScreen() {
             <Text style={styles.secBtnText}>🗺️ Topics</Text>
           </TouchableOpacity>
         </View>
-
-        {/* Stats Banner */}
-        <View style={styles.statsBanner}>
-          <Text style={styles.statsText}>⭐ {totalStars} Stars</Text>
-          <View style={styles.statsDivider} />
-          <Text style={styles.statsText}>🏆 {gamesPlayed} Games</Text>
-        </View>
-
-      </ScrollView>
+      </Animated.View>
     </LinearGradient>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1 },
   inner: {
-    flexGrow: 1, alignItems: 'center', justifyContent: 'center',
-    paddingHorizontal: 24, paddingVertical: 40,
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 28,
+    paddingVertical: 40,
   },
-  sun: {
-    position: 'absolute', top: 28, right: 58,
-    width: 76, height: 76, borderRadius: 38,
-    backgroundColor: '#FFD93D',
-    shadowColor: '#FFD93D', shadowOpacity: 0.6,
-    shadowRadius: 20, elevation: 8,
+  mascotRing: {
+    width: 130, height: 130, borderRadius: 65,
+    backgroundColor: 'rgba(255,255,255,0.22)',
+    alignItems: 'center', justifyContent: 'center',
+    borderWidth: 3, borderColor: 'rgba(255,255,255,0.4)',
+    shadowColor: '#FFD93D', shadowOpacity: 0.7,
+    shadowOffset: { width: 0, height: 0 }, shadowRadius: 30,
+    elevation: 12,
   },
-  mascot: { fontSize: 88, marginBottom: 20 },
-  logo: {
+  mascot: { fontSize: 80 },
+  title: {
     fontFamily: FONTS.display,
-    fontSize: 72, color: '#FF6B35',
-    textShadowColor: 'rgba(0,0,0,0.15)',
+    fontSize: 64, color: '#fff',
+    textShadowColor: 'rgba(0,0,0,0.25)',
     textShadowOffset: { width: 3, height: 4 },
     textShadowRadius: 0,
-    marginBottom: 6,
+    marginBottom: 10, letterSpacing: -1,
   },
-  tagline: {
-    fontFamily: FONTS.display,
-    fontSize: 20, color: '#fff',
-    textShadowColor: 'rgba(0,0,0,0.2)',
-    textShadowOffset: { width: 1, height: 2 },
-    textShadowRadius: 0,
-    marginBottom: 36,
-    letterSpacing: 0.5,
+  taglinePill: {
+    backgroundColor: 'rgba(255,255,255,0.22)',
+    borderRadius: 50,
+    paddingVertical: 8, paddingHorizontal: 22,
+    marginBottom: 24,
+    borderWidth: 1.5, borderColor: 'rgba(255,255,255,0.35)',
   },
-  playBtn: {
-    backgroundColor: '#FF6B35',
+  taglineText: {
+    fontFamily: FONTS.display, fontSize: 17, color: '#fff',
+  },
+  statsRow: {
+    flexDirection: 'row', gap: 10, marginBottom: 28,
+  },
+  statChip: {
+    flexDirection: 'row', alignItems: 'center',
+    backgroundColor: 'rgba(255,255,255,0.18)',
+    borderRadius: 50,
+    paddingVertical: 8, paddingHorizontal: 18,
+    borderWidth: 1.5, borderColor: 'rgba(255,255,255,0.3)',
+  },
+  statEmoji: { fontSize: 18 },
+  statVal:   { fontFamily: FONTS.display, fontSize: 20, color: '#fff', marginLeft: 4 },
+  statLabel: { fontFamily: FONTS.display, fontSize: 14, color: 'rgba(255,255,255,0.8)' },
+
+  /* Play button */
+  playBtnWrap: {
+    width: '92%', maxWidth: 340,
+    marginBottom: 20,
+    position: 'relative',
+  },
+  playBtnFace: {
     borderRadius: 60,
-    paddingVertical: 18, paddingHorizontal: 60,
-    shadowColor: '#c73d7a',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 1, shadowRadius: 0,
-    elevation: 8, marginBottom: 16,
+    paddingVertical: 20,
+    alignItems: 'center',
+  },
+  playBtnSlab: {
+    position: 'absolute',
+    bottom: -7, left: 6, right: 6,
+    height: '100%',
+    borderRadius: 60,
+    backgroundColor: '#B54700',
+    zIndex: -1,
   },
   playBtnText: {
     fontFamily: FONTS.display,
-    fontSize: 30, color: '#fff', letterSpacing: 1,
+    fontSize: 30, color: '#1a0800', letterSpacing: 1,
   },
-  secondaryRow: { flexDirection: 'row', gap: 12, marginBottom: 18 },
+
+  /* Secondary row */
+  secondRow: { flexDirection: 'row', gap: 12 },
   secBtn: {
-    backgroundColor: 'rgba(255,255,255,0.25)',
-    borderWidth: 2.5, borderColor: 'rgba(255,255,255,0.5)',
-    borderRadius: 50, paddingVertical: 10, paddingHorizontal: 22,
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    borderWidth: 2, borderColor: 'rgba(255,255,255,0.4)',
+    borderRadius: 50, paddingVertical: 12, paddingHorizontal: 24,
   },
-  secBtnText: {
-    fontFamily: FONTS.display, fontSize: 17, color: '#fff',
-  },
-  statsBanner: {
-    flexDirection: 'row', alignItems: 'center', gap: 12,
-    backgroundColor: 'rgba(255,255,255,0.25)',
-    borderRadius: 50, paddingVertical: 10, paddingHorizontal: 24,
-    marginTop: 6,
-  },
-  statsText: {
-    fontFamily: FONTS.display, fontSize: 18, color: '#fff',
-    textShadowColor: 'rgba(0,0,0,0.15)', textShadowOffset: { width: 1, height: 1 }, textShadowRadius: 0,
-  },
-  statsDivider: { width: 2, height: 20, backgroundColor: 'rgba(255,255,255,0.4)', borderRadius: 2 },
+  secBtnText: { fontFamily: FONTS.display, fontSize: 16, color: '#fff' },
 });

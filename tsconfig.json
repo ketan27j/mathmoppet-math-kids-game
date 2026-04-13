@@ -1,4 +1,6 @@
 {
-  "compilerOptions": {},
+  "compilerOptions": {
+    "downlevelIteration": true
+  },
   "extends": "expo/tsconfig.base"
 }

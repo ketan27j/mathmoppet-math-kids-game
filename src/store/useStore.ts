@@ -71,7 +71,7 @@ export const useStore = create<AppState>((set, get) => ({
   currentTopic: 'counting',
   currentLevel: 1,
   sessionScore: 0,
-  isPro: false,
+  isPro: true,
 
   settings: {
     soundEnabled:      true,

@@ -18,6 +18,9 @@ export interface Question {
   clockM?: number;
 }
 
+// Track previously asked questions to prevent repetition
+
+
 // ──────── helpers ────────
 const rnd = (a: number, b: number) => Math.floor(Math.random() * (b - a + 1)) + a;
 const pick = <T>(arr: T[]): T => arr[rnd(0, arr.length - 1)];
@@ -129,7 +132,7 @@ function makePatternOpts(answer: string): string[] {
 function makeTime(config: any) {
   const types = config.ty || ['oc'];
   const ty = pick(types);
-  const h = config.h ? pick(config.h) : rnd(1, 12);
+  const h: number = config.h ? pick(config.h as number[]) : rnd(1, 12);
   let m = 0;
   if (ty === 'oc') m = 0;
   else if (ty === 'hf') m = 30;
@@ -137,7 +140,7 @@ function makeTime(config: any) {
   else if (ty === '5m') m = pick([5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55]);
   else m = pick([0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55]);
   
-  const fmt = (hh: number, mm: number) => mm === 0 ? `${hh}:00` : `${hh}:${mm < 10 ? '0' + mm : mm}`;
+  const fmt = (hh: any, mm: number) => mm === 0 ? `${hh}:00` : `${hh}:${mm < 10 ? '0' + mm : mm}`;
   const label = fmt(h, m);
   const decoys = new Set([label]);
   
@@ -152,88 +155,141 @@ function makeTime(config: any) {
 }
 
 // ──────── main generator ────────
-export function generateQuestion(topic: TopicType, level: number = 1): Question {
-  const c = getConfig(topic, level);
-  
-  switch (topic) {
-    case 'counting': {
-      const em = pick(COUNTING_EMOJIS);
-      const n  = rnd(c.n[0], c.n[1]);
-      return {
-        topic, visual: n <= 15 ? em.repeat(n) : '',
-        questionText: `How many ${em}?`, hint: n > 15 ? `(Count shown: ${n})` : 'Count them all!',
-        answer: n, options: makeNumOpts(n, Math.max(3, Math.ceil(n * 0.4)), 1), optionType: 'num',
-      };
-    }
-    case 'addition': {
-      const em = pick(ADDITION_EMOJIS);
-      const a = rnd(1, c.a), b = rnd(1, c.b);
-      return {
-        topic,
-        visual: a + b <= 12 ? `${em.repeat(a)} + ${em.repeat(b)}` : '',
-        questionText: `${a} + ${b} = ?`, hint: 'Add the numbers!',
-        answer: a + b, options: makeNumOpts(a + b, Math.max(4, Math.ceil((a + b) * 0.3)), 0), optionType: 'num',
-      };
-    }
-    case 'subtraction': {
-      const em = pick(SUBTR_EMOJIS);
-      const a = rnd(2, c.a), b = rnd(1, Math.min(a, c.b));
-      return {
-        topic, visual: a <= 10 ? em.repeat(a) : '',
-        questionText: `${a} − ${b} = ?`, hint: 'Take away!',
-        answer: a - b, options: makeNumOpts(a - b, Math.max(3, Math.ceil(a * 0.3)), 0), optionType: 'num',
-      };
-    }
-    case 'multiplication': {
-      const em = pick(MULTI_EMOJIS);
-      const a = rnd(1, c.a), b = rnd(1, c.b);
-      return {
-        topic,
-        visual: a <= 4 && b <= 5 ? Array.from({ length: a }, () => em.repeat(b)).join(' ') : '',
-        questionText: `${a} × ${b} = ?`, hint: 'Groups of!',
-        answer: a * b, options: makeNumOpts(a * b, Math.max(4, Math.ceil(a * b * 0.4)), 0), optionType: 'num',
-      };
-    }
-    case 'division': {
-      const em = pick(DIV_EMOJIS);
-      const b = pick(c.d), a = b * rnd(2, c.q);
-      return {
-        topic, visual: a <= 12 ? em.repeat(a) : '',
-        questionText: `${a} ÷ ${b} = ?`, hint: 'Share equally!',
-        answer: a / b, options: makeNumOpts(a / b, Math.max(3, Math.ceil(a / b * 0.5)), 1), optionType: 'num',
-      };
-    }
-    case 'shapes': {
-      const names = SHAPE_DATA.slice(0, Math.min(c.s, 7));
-      const target = pick(names);
-      const others = shuffle(names.filter(n => n.name !== target.name).map(n => n.emoji)).slice(0, 3);
-      return {
-        topic, visual: '',
-        questionText: `Find the ${target.name}!`, hint: 'Tap the right shape!',
-        answer: target.emoji, options: shuffle([target.emoji, ...others]), optionType: 'shape',
-      };
-    }
-    case 'patterns': {
-      const { seq, answer } = makePattern(c.t, c.l);
-      return {
-        topic, visual: seq.join('  '),
-        questionText: 'What comes next?', hint: 'Look at the pattern!',
-        answer, options: makePatternOpts(answer), optionType: 'pattern',
-      };
-    }
-    case 'time': {
-      const { h, m, label, opts } = makeTime(c);
-      return {
-        topic, visual: 'clock',
-        questionText: 'What time is it?', hint: 'Read the clock hands!',
-        answer: label, options: opts, optionType: 'text',
-        clockH: h, clockM: m,
-      };
-    }
-  }
-}
-
 export const CORRECT_MESSAGES = ['Amazing! 🎉','Super! ⭐','Wow! 🌟','Perfect! 🏆','Great job! 🎊','Brilliant! 🌈'];
 export const WRONG_MESSAGES   = ['Almost! 💪','Try again! 🤗','Keep going! 🌈','You got this! ✨'];
 
 export const DIFFICULTY_LABELS = ['', 'Starter', 'Easy', 'Getting There', 'Warm Up', 'Medium', 'Picking Up', 'Challenging', 'Hard', 'Super Hard', 'Expert!'];
+
+// ──────── main generator ────────
+export function generateQuestion(topic: TopicType, level: number): Question {
+  const cfg = getConfig(topic, level);
+
+  if (topic === 'counting') {
+    const [min, max] = cfg.n;
+    const n = rnd(min, max);
+    const emoji = pick(COUNTING_EMOJIS);
+    return {
+      topic,
+      visual: emoji.repeat(n),
+      questionText: 'How many?',
+      hint: `Count the ${emoji}s`,
+      answer: n,
+      options: makeNumOpts(n, 3, 0),
+      optionType: 'num',
+    };
+  }
+
+  if (topic === 'addition') {
+    const a = rnd(0, cfg.a), b = rnd(0, cfg.b);
+    const answer = a + b;
+    const emoji = pick(ADDITION_EMOJIS);
+    const visual = (a + b <= 16)
+      ? `${emoji.repeat(a)} + ${emoji.repeat(b)}`
+      : `${emoji} ${a} + ${b} ${emoji}`;
+    return {
+      topic,
+      visual,
+      questionText: `${a} + ${b} = ?`,
+      hint: 'Add them together!',
+      answer,
+      options: makeNumOpts(answer, Math.max(3, Math.ceil(answer * 0.25)), 0),
+      optionType: 'num',
+    };
+  }
+
+  if (topic === 'subtraction') {
+    const b = rnd(0, cfg.b), a = rnd(b, cfg.a);
+    const answer = a - b;
+    const emoji = pick(SUBTR_EMOJIS);
+    const visual = (a <= 16)
+      ? `${emoji.repeat(a)} - ${emoji.repeat(b)}`
+      : `${emoji} ${a} - ${b} ${emoji}`;
+    return {
+      topic,
+      visual,
+      questionText: `${a} - ${b} = ?`,
+      hint: 'Take them away!',
+      answer,
+      options: makeNumOpts(answer, Math.max(3, Math.ceil(a * 0.3)), 0),
+      optionType: 'num',
+    };
+  }
+
+  if (topic === 'multiplication') {
+    const a = rnd(1, cfg.a), b = rnd(1, cfg.b);
+    const answer = a * b;
+    const emoji = pick(MULTI_EMOJIS);
+    const rows = Math.min(a, 4), cols = Math.min(b, 5);
+    const visual = Array.from({ length: rows }, () => emoji.repeat(cols)).join('\n');
+    return {
+      topic,
+      visual,
+      questionText: `${a} × ${b} = ?`,
+      hint: `${a} groups of ${b}`,
+      answer,
+      options: makeNumOpts(answer, Math.max(5, Math.ceil(answer * 0.3)), 0),
+      optionType: 'num',
+    };
+  }
+
+  if (topic === 'division') {
+    const d = pick(cfg.d as number[]);
+    const q = rnd(1, cfg.q);
+    const a = d * q;
+    const emoji = pick(DIV_EMOJIS);
+    return {
+      topic,
+      visual: emoji.repeat(Math.min(a, 10)),
+      questionText: `${a} ÷ ${d} = ?`,
+      hint: `Split into ${d} equal groups`,
+      answer: q,
+      options: makeNumOpts(q, Math.max(3, Math.ceil(cfg.q * 0.4)), 1),
+      optionType: 'num',
+    };
+  }
+
+  if (topic === 'shapes') {
+    const count = cfg.s as number;
+    const pool = SHAPE_DATA.slice(0, count);
+    const shape = pick(pool);
+    const distractors = SHAPE_DATA.filter(s => s.name !== shape.name);
+    const opts = shuffle([shape, ...shuffle(distractors).slice(0, 3)]).map(s => s.name);
+    return {
+      topic,
+      visual: shape.emoji,
+      questionText: 'What shape is this?',
+      hint: 'Name this shape!',
+      answer: shape.name,
+      options: opts,
+      optionType: 'shape',
+    };
+  }
+
+  if (topic === 'patterns') {
+    const { t, l } = cfg;
+    const { seq, answer } = makePattern(t, l);
+    return {
+      topic,
+      visual: seq.join(' '),
+      questionText: 'What comes next?',
+      hint: `Look at the pattern!`,
+      answer,
+      options: makePatternOpts(answer),
+      optionType: 'pattern',
+    };
+  }
+
+  // topic === 'time'
+  const { h, m, label, opts } = makeTime(cfg);
+  return {
+    topic,
+    visual: 'clock',
+    questionText: 'What time is it?',
+    hint: 'Look at the clock!',
+    answer: label,
+    options: opts,
+    optionType: 'text',
+    clockH: h,
+    clockM: m,
+  };
+}
