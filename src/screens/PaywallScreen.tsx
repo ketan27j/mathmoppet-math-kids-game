@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import { useStore } from '../store/useStore';
@@ -37,6 +38,7 @@ export default function PaywallScreen() {
       locations={[0, 0.38, 0.38, 1]}
       style={styles.container}
     >
+      <SafeAreaView style={{ flex: 1 }}>
       <ScrollView contentContainerStyle={styles.inner} showsVerticalScrollIndicator={false}>
         
         <View style={styles.card}>
@@ -88,6 +90,7 @@ export default function PaywallScreen() {
         </View>
         
       </ScrollView>
+      </SafeAreaView>
     </LinearGradient>
   );
 }

@@ -1,8 +1,9 @@
 import React, { useEffect, useRef } from 'react';
 import {
   View, Text, TouchableOpacity, StyleSheet,
-  Animated, Dimensions, StatusBar,
+  Animated, Dimensions,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import { useStore } from '../store/useStore';
@@ -86,23 +87,22 @@ export default function HomeScreen() {
       end={{ x: 0.9, y: 1 }}
       style={{ flex: 1 }}
     >
-      <StatusBar barStyle="light-content" />
+      <SafeAreaView style={{ flex: 1 }}>
+        {/* Floating decorative emojis */}
+        <FloatingEmoji emoji="⭐" top={height * 0.06} left={width * 0.05}  delay={0}    size={28} />
+        <FloatingEmoji emoji="🌈" top={height * 0.04} left={width * 0.72}  delay={400}  size={32} />
+        <FloatingEmoji emoji="✨" top={height * 0.16} left={width * 0.88}  delay={800}  size={22} />
+        <FloatingEmoji emoji="🎈" top={height * 0.10} left={width * 0.14}  delay={200}  size={30} />
+        <FloatingEmoji emoji="💫" top={height * 0.74} left={width * 0.04}  delay={600}  size={26} />
+        <FloatingEmoji emoji="⭐" top={height * 0.80} left={width * 0.86}  delay={1000} size={22} />
+        <FloatingEmoji emoji="🍭" top={height * 0.70} left={width * 0.82}  delay={300}  size={30} />
 
-      {/* Floating decorative emojis */}
-      <FloatingEmoji emoji="⭐" top={height * 0.06} left={width * 0.05}  delay={0}    size={28} />
-      <FloatingEmoji emoji="🌈" top={height * 0.04} left={width * 0.72}  delay={400}  size={32} />
-      <FloatingEmoji emoji="✨" top={height * 0.16} left={width * 0.88}  delay={800}  size={22} />
-      <FloatingEmoji emoji="🎈" top={height * 0.10} left={width * 0.14}  delay={200}  size={30} />
-      <FloatingEmoji emoji="💫" top={height * 0.74} left={width * 0.04}  delay={600}  size={26} />
-      <FloatingEmoji emoji="⭐" top={height * 0.80} left={width * 0.86}  delay={1000} size={22} />
-      <FloatingEmoji emoji="🍭" top={height * 0.70} left={width * 0.82}  delay={300}  size={30} />
-
-      <Animated.View
-        style={[
-          styles.inner,
-          { opacity: fadeAnim, transform: [{ translateY: slideAnim }] },
-        ]}
-      >
+        <Animated.View
+          style={[
+            styles.inner,
+            { opacity: fadeAnim, transform: [{ translateY: slideAnim }] },
+          ]}
+        >
         {/* Mascot */}
         <Animated.View style={{ transform: [{ translateY: bounceAnim }], marginBottom: 18 }}>
           <View style={styles.mascotRing}>
@@ -110,8 +110,17 @@ export default function HomeScreen() {
           </View>
         </Animated.View>
 
-        {/* Title */}
-        <Text style={styles.title}>MathMoppet</Text>
+        {/* Title — two-tone wordmark with comic shadow */}
+        <View style={styles.titleRow}>
+          {/* Shadow layer (rendered behind) */}
+          <Text style={[styles.titleShadow]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.5}>
+            Math<Text style={styles.titleShadowAccent}>Moppet</Text>
+          </Text>
+          {/* Foreground layer */}
+          <Text style={[styles.titleFg]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.5}>
+            Math<Text style={styles.titleFgAccent}>Moppet</Text>
+          </Text>
+        </View>
 
         {/* Tagline pill */}
         <View style={styles.taglinePill}>
@@ -164,7 +173,8 @@ export default function HomeScreen() {
             <Text style={styles.secBtnText}>🗺️ Topics</Text>
           </TouchableOpacity>
         </View>
-      </Animated.View>
+        </Animated.View>
+      </SafeAreaView>
     </LinearGradient>
   );
 }
@@ -182,19 +192,29 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255,255,255,0.22)',
     alignItems: 'center', justifyContent: 'center',
     borderWidth: 3, borderColor: 'rgba(255,255,255,0.4)',
-    shadowColor: '#FFD93D', shadowOpacity: 0.7,
+    shadowColor: '#00E5FF', shadowOpacity: 0.75,
     shadowOffset: { width: 0, height: 0 }, shadowRadius: 30,
     elevation: 12,
   },
   mascot: { fontSize: 80 },
-  title: {
-    fontFamily: FONTS.display,
-    fontSize: 64, color: '#fff',
-    textShadowColor: 'rgba(0,0,0,0.25)',
-    textShadowOffset: { width: 3, height: 4 },
-    textShadowRadius: 0,
-    marginBottom: 10, letterSpacing: -1,
+  titleRow: {
+    width: '100%', alignItems: 'center', marginBottom: 10,
+    paddingBottom: 6,
   },
+  titleShadow: {
+    position: 'absolute',
+    fontFamily: FONTS.display,
+    fontSize: 70, color: '#5B0080',
+    letterSpacing: 1, textAlign: 'center',
+    top: 5, left: 5,
+  },
+  titleShadowAccent: { color: '#B54700' },
+  titleFg: {
+    fontFamily: FONTS.display,
+    fontSize: 70, color: '#fff',
+    letterSpacing: 1, textAlign: 'center',
+  },
+  titleFgAccent: { color: '#FFE556' },
   taglinePill: {
     backgroundColor: 'rgba(255,255,255,0.22)',
     borderRadius: 50,

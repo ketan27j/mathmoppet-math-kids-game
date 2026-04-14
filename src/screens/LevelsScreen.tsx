@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Animated, Dimensions } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import { useStore } from '../store/useStore';
@@ -55,6 +56,7 @@ export default function LevelsScreen() {
       end={{ x: 0.6, y: 1 }}
       style={{ flex: 1 }}
     >
+      <SafeAreaView style={{ flex: 1 }}>
       <ScrollView
         contentContainerStyle={styles.container}
         showsVerticalScrollIndicator={false}
@@ -134,6 +136,7 @@ export default function LevelsScreen() {
           <Text style={styles.backBtnText}>← Topics</Text>
         </TouchableOpacity>
       </ScrollView>
+      </SafeAreaView>
     </LinearGradient>
   );
 }
@@ -163,7 +166,7 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     alignItems: 'center',
     paddingHorizontal: 18,
-    paddingTop: 36,
+    paddingTop: 20,
     paddingBottom: 36,
   },
   topicName: {

@@ -3,9 +3,16 @@ import {
   View, Text, TouchableOpacity, StyleSheet,
   Animated, ScrollView,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router, useLocalSearchParams } from 'expo-router';
 import { FONTS, COLORS } from '../src/constants/theme';
+
+const BTN_PALETTE = [
+  { face: '#FF6B6B', slab: '#B03030', label: '🔄  Play Again' },
+  { face: '#4FC3F7', slab: '#0278A8', label: '🗺️  Choose Topic' },
+  { face: '#81C784', slab: '#347537', label: '🏠  Home' },
+];
 
 export default function ResultScreen() {
   const { score, total, topic } = useLocalSearchParams<{ score: string; total: string; topic: string }>();
@@ -29,53 +36,82 @@ export default function ResultScreen() {
     ]).start();
   }, []);
 
-  return (
-    <LinearGradient colors={['#87CEEB','#B0E0FF','#6BCB77','#4CAF50']} locations={[0,0.38,0.38,1]} style={{flex:1}}>
-      <ScrollView contentContainerStyle={styles.container}>
-        <View style={styles.card}>
-          <Animated.Text style={[styles.bigEmoji, { transform:[{ scale: emojiAnim }] }]}>{emoji}</Animated.Text>
-          <Text style={styles.title}>{title}</Text>
-          <Text style={styles.sub}>{sub}</Text>
+  const actions = [
+    { ...BTN_PALETTE[0], onPress: () => router.replace({ pathname: '/game', params: { topic } }) },
+    { ...BTN_PALETTE[1], onPress: () => router.replace('/topics') },
+    { ...BTN_PALETTE[2], onPress: () => router.replace('/') },
+  ];
 
-          <View style={styles.starsRow}>
-            {[0,1,2].map(i => (
-              <Animated.Text key={i} style={[styles.starItem, { transform:[{ scale: starAnims[i] }], opacity: starAnims[i] }]}>
-                {i < starCount ? '⭐' : '☆'}
-              </Animated.Text>
-            ))}
+  return (
+    <LinearGradient colors={['#E0F0FF', '#F5FAFF', '#EAF6EA']} style={{ flex: 1 }}>
+      <SafeAreaView style={{ flex: 1 }}>
+        <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
+          <View style={styles.card}>
+            <Animated.Text style={[styles.bigEmoji, { transform: [{ scale: emojiAnim }] }]}>{emoji}</Animated.Text>
+            <Text style={styles.title}>{title}</Text>
+            <Text style={styles.sub}>{sub}</Text>
+
+            <View style={styles.starsRow}>
+              {[0, 1, 2].map(i => (
+                <Animated.Text key={i} style={[styles.starItem, { transform: [{ scale: starAnims[i] }], opacity: starAnims[i] }]}>
+                  {i < starCount ? '⭐' : '☆'}
+                </Animated.Text>
+              ))}
+            </View>
+
+            <View style={styles.scoreBadge}>
+              <Text style={styles.scoreText}>⭐ {s} / {t} Correct</Text>
+            </View>
           </View>
 
-          <Text style={styles.scoreText}>⭐ {s} / {t} Correct</Text>
-
-          <TouchableOpacity style={[styles.btn, { backgroundColor: '#FF6B35' }]} onPress={() => router.replace({ pathname:'/game', params:{topic} })}>
-            <Text style={styles.btnText}>🔄  Play Again</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={[styles.btn, { backgroundColor: '#6366F1', marginTop: 12 }]} onPress={() => router.replace('/topics')}>
-            <Text style={styles.btnText}>🗺️  Choose Topic</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={[styles.btn, { backgroundColor: '#14B8A6', marginTop: 12 }]} onPress={() => router.replace('/')}>
-            <Text style={styles.btnText}>🏠  Home</Text>
-          </TouchableOpacity>
-        </View>
-      </ScrollView>
+          <View style={styles.btnGrid}>
+            {actions.map(({ face, slab, label, onPress }) => (
+              <View key={label} style={styles.btnWrap}>
+                <TouchableOpacity
+                  style={[styles.btnFace, { backgroundColor: face }]}
+                  onPress={onPress}
+                  activeOpacity={0.85}
+                >
+                  <Text style={styles.btnText}>{label}</Text>
+                </TouchableOpacity>
+                <View style={[styles.btnSlab, { backgroundColor: slab }]} />
+              </View>
+            ))}
+          </View>
+        </ScrollView>
+      </SafeAreaView>
     </LinearGradient>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flexGrow:1, alignItems:'center', justifyContent:'center', padding:24 },
+  container: { flexGrow: 1, alignItems: 'center', justifyContent: 'center', padding: 24 },
   card: {
-    backgroundColor:'rgba(255,255,255,0.97)', borderRadius:32,
-    padding:36, maxWidth:400, width:'100%', alignItems:'center',
-    shadowColor:'#000', shadowOpacity:0.14, shadowOffset:{width:0,height:10}, shadowRadius:24, elevation:10,
+    backgroundColor: '#fff',
+    borderRadius: 28,
+    padding: 36, maxWidth: 400, width: '100%', alignItems: 'center',
+    shadowColor: '#000', shadowOpacity: 0.1,
+    shadowOffset: { width: 0, height: 8 }, shadowRadius: 20, elevation: 8,
+    marginBottom: 28,
   },
-  bigEmoji: { fontSize:72, marginBottom:12 },
-  title: { fontFamily:FONTS.display, fontSize:38, color:'#1F2937', marginBottom:6 },
-  sub:   { fontFamily:FONTS.bodyBold, fontSize:15, color:'#9CA3AF', marginBottom:24, textAlign:'center' },
-  starsRow: { flexDirection:'row', gap:12, marginBottom:20 },
-  starItem: { fontSize:44 },
-  scoreText: { fontFamily:FONTS.display, fontSize:24, color:COLORS.primary, marginBottom:24 },
-  btn: { borderRadius:50, paddingVertical:15, paddingHorizontal:40, width:'100%', alignItems:'center',
-    shadowColor:'#000', shadowOpacity:0.1, shadowOffset:{width:0,height:5}, shadowRadius:10, elevation:5 },
-  btnText: { fontFamily:FONTS.display, fontSize:22, color:'#fff' },
+  bigEmoji: { fontSize: 72, marginBottom: 12 },
+  title: { fontFamily: FONTS.display, fontSize: 38, color: COLORS.textDark, marginBottom: 6 },
+  sub: { fontFamily: FONTS.bodyBold, fontSize: 15, color: COLORS.textLight, marginBottom: 24, textAlign: 'center' },
+  starsRow: { flexDirection: 'row', gap: 12, marginBottom: 20 },
+  starItem: { fontSize: 44 },
+  scoreBadge: {
+    backgroundColor: '#F0F9FF', borderRadius: 50,
+    paddingVertical: 10, paddingHorizontal: 28,
+  },
+  scoreText: { fontFamily: FONTS.display, fontSize: 24, color: COLORS.primary },
+
+  btnGrid: { width: '100%', maxWidth: 400, gap: 16 },
+  btnWrap: { position: 'relative' },
+  btnFace: { borderRadius: 20, paddingVertical: 18, alignItems: 'center' },
+  btnSlab: {
+    position: 'absolute',
+    bottom: -6, left: 4, right: 4,
+    height: '100%', borderRadius: 20, zIndex: -1,
+  },
+  btnText: { fontFamily: FONTS.display, fontSize: 22, color: '#fff' },
 });

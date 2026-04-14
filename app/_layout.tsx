@@ -1,9 +1,15 @@
 // app/_layout.tsx  — Root layout for expo-router
-import { Component, ReactNode } from 'react';
+import { Component, ReactNode, useEffect } from 'react';
 import { Button, DevSettings, StyleSheet, Text, View } from 'react-native';
 import { Stack } from 'expo-router';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { useFonts } from 'expo-font';
+import { Fredoka_700Bold } from '@expo-google-fonts/fredoka';
+import { Nunito_400Regular, Nunito_700Bold } from '@expo-google-fonts/nunito';
+import * as SplashScreen from 'expo-splash-screen';
+
+SplashScreen.preventAutoHideAsync();
 
 type RootErrorBoundaryState = {
   hasError: boolean;
@@ -52,6 +58,18 @@ class RootErrorBoundary extends Component<{ children: ReactNode }, RootErrorBoun
 }
 
 export default function RootLayout() {
+  const [fontsLoaded] = useFonts({
+    FredokaOne:   Fredoka_700Bold,
+    Nunito:       Nunito_400Regular,
+    'Nunito-Bold': Nunito_700Bold,
+  });
+
+  useEffect(() => {
+    if (fontsLoaded) SplashScreen.hideAsync();
+  }, [fontsLoaded]);
+
+  if (!fontsLoaded) return null;
+
   return (
     <RootErrorBoundary>
 <SafeAreaProvider>
