@@ -89,6 +89,6 @@ export const TOPIC_DESCRIPTIONS: Record<string, string> = {
 };
 
 export const ALL_TOPICS = [
-  'counting','addition','subtraction',
-  'multiplication','division','shapes','patterns','time'
+  'counting','shapes','patterns','addition','subtraction',
+  'multiplication','division','time'
 ];

@@ -18,12 +18,12 @@ const CARD_W = (width - 48 - 12) / 2;
 
 const TOPIC_GRADIENTS: Record<string, [string, string]> = {
   counting:       ['#FFE55C', '#FFB700'],
+  shapes:         ['#5EE5DC', '#0FA89D'],
+  patterns:       ['#CC88FA', '#9333EA'],
   addition:       ['#7EE47E', '#3DAF3D'],
   subtraction:    ['#F8A0CC', '#E91E8C'],
   multiplication: ['#9EA2FB', '#5558EF'],
   division:       ['#FFAA78', '#E85A00'],
-  shapes:         ['#5EE5DC', '#0FA89D'],
-  patterns:       ['#CC88FA', '#9333EA'],
   time:           ['#FFAA50', '#EA6C00'],
 };
 
