@@ -23,7 +23,7 @@ const TOPIC_GRADIENTS: Record<string, [string, string]> = {
   addition:       ['#7EE47E', '#3DAF3D'],
   subtraction:    ['#F8A0CC', '#E91E8C'],
   multiplication: ['#9EA2FB', '#5558EF'],
-  division:       ['#FFAA78', '#E85A00'],
+  division:       ['#BA68C8', '#7B1FA2'],
   time:           ['#FFAA50', '#EA6C00'],
 };
 
@@ -58,6 +58,10 @@ export default function TopicsScreen() {
         contentContainerStyle={styles.container}
         showsVerticalScrollIndicator={false}
       >
+        <TouchableOpacity style={styles.homeBtn} onPress={() => router.replace('/')} activeOpacity={0.8}>
+          <Text style={styles.homeBtnText}>🏠 Back to Home</Text>
+        </TouchableOpacity>
+
         <Text style={styles.title}>🎯 Choose a Topic!</Text>
         <Text style={styles.subtitle}>Pick your adventure and start learning</Text>
 
@@ -98,10 +102,7 @@ export default function TopicsScreen() {
           })}
         </View>
 
-        <TouchableOpacity style={styles.backBtn} onPress={() => router.back()} activeOpacity={0.8}>
-          <Text style={styles.backBtnText}>🏠  Home</Text>
-        </TouchableOpacity>
-      </ScrollView>
+        </ScrollView>
       </SafeAreaView>
     </LinearGradient>
   );
@@ -112,12 +113,23 @@ const styles = StyleSheet.create({
     flexGrow: 1, alignItems: 'center',
     paddingHorizontal: 18, paddingTop: 20, paddingBottom: 32,
   },
+  headerRow: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+    width: '100%', marginBottom: 20,
+  },
+  spacer: { width: 80 },
   title: {
     fontFamily: FONTS.display, fontSize: 34, color: '#fff',
     textShadowColor: 'rgba(0,0,0,0.3)',
     textShadowOffset: { width: 2, height: 3 }, textShadowRadius: 0,
     marginBottom: 6, textAlign: 'center',
   },
+  homeBtn: {
+    backgroundColor: 'rgba(255,255,255,0.15)', borderRadius: 50,
+    paddingVertical: 10, paddingHorizontal: 20,
+    marginBottom: 15,
+  },
+  homeBtnText: { fontFamily: FONTS.display, fontSize: 16, color: '#fff' },
   subtitle: {
     fontFamily: FONTS.body, fontSize: 14, color: 'rgba(255,255,255,0.65)',
     marginBottom: 28, textAlign: 'center',
@@ -147,11 +159,4 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.bodyBold, fontSize: 12,
     color: 'rgba(255,255,255,0.82)', textAlign: 'center',
   },
-  backBtn: {
-    backgroundColor: '#fff', borderRadius: 50,
-    paddingVertical: 13, paddingHorizontal: 32,
-    shadowColor: '#000', shadowOpacity: 0.12,
-    shadowOffset: { width: 0, height: 5 }, shadowRadius: 12, elevation: 5,
-  },
-  backBtnText: { fontFamily: FONTS.display, fontSize: 18, color: '#333' },
 });
