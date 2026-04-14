@@ -109,7 +109,7 @@ export default function GameScreen() {
       if (qIdx + 1 >= TOTAL) {
         const finalScore = isCorrect ? score + 1 : score;
         finishGame(topic, level, finalScore, TOTAL);
-        router.replace({ pathname: '/result', params: { score: finalScore, total: TOTAL, topic } });
+        router.replace({ pathname: '/result', params: { score: finalScore, total: TOTAL, topic, level: level.toString() } });
       } else {
         setQIdx(i => i + 1);
       }

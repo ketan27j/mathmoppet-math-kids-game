@@ -13,16 +13,22 @@ const BTN_PALETTE = [
   { face: '#4FC3F7', slab: '#0278A8', label: '🗺️  Choose Topic' },
   { face: '#81C784', slab: '#347537', label: '🏠  Home' },
 ];
+const NEXT_BTN = { face: '#FFB74D', slab: '#E65100', label: '➡️  Next Level' };
+
+const MAX_LEVEL = 10;
 
 export default function ResultScreen() {
-  const { score, total, topic } = useLocalSearchParams<{ score: string; total: string; topic: string }>();
+  const { score, total, topic, level } = useLocalSearchParams<{ score: string; total: string; topic: string; level?: string }>();
   const s = Number(score), t = Number(total);
+  const currentLevel = level ? Number(level) : 1;
   const pct = s / t;
+  const hasNextLevel = currentLevel < MAX_LEVEL;
 
   const starAnims = [useRef(new Animated.Value(0)).current, useRef(new Animated.Value(0)).current, useRef(new Animated.Value(0)).current];
   const emojiAnim = useRef(new Animated.Value(0)).current;
 
   const starCount = pct === 1 ? 3 : pct >= 0.6 ? 2 : 1;
+  const gotThreeStars = pct === 1;
   const emoji = pct === 1 ? '🏆' : pct >= 0.6 ? '🌟' : '💪';
   const title = pct === 1 ? 'PERFECT!' : pct >= 0.6 ? 'Awesome!' : 'Good Try!';
   const sub   = pct === 1 ? 'You got everything right!' : pct >= 0.6 ? 'Really great work!' : 'Practice makes perfect!';
@@ -36,11 +42,17 @@ export default function ResultScreen() {
     ]).start();
   }, []);
 
-  const actions = [
-    { ...BTN_PALETTE[0], onPress: () => router.replace({ pathname: '/game', params: { topic } }) },
-    { ...BTN_PALETTE[1], onPress: () => router.replace('/topics') },
-    { ...BTN_PALETTE[2], onPress: () => router.replace('/') },
-  ];
+  const actions = gotThreeStars && hasNextLevel
+    ? [
+        { ...NEXT_BTN, onPress: () => router.replace({ pathname: '/game', params: { topic, level: String(currentLevel + 1) } }) },
+        { ...BTN_PALETTE[0], onPress: () => router.replace({ pathname: '/game', params: { topic, level: String(currentLevel) } }) },
+        { ...BTN_PALETTE[2], onPress: () => router.replace('/') },
+      ]
+    : [
+        { ...BTN_PALETTE[0], onPress: () => router.replace({ pathname: '/game', params: { topic, level: String(currentLevel) } }) },
+        { ...BTN_PALETTE[1], onPress: () => router.replace('/topics') },
+        { ...BTN_PALETTE[2], onPress: () => router.replace('/') },
+      ];
 
   return (
     <LinearGradient colors={['#E0F0FF', '#F5FAFF', '#EAF6EA']} style={{ flex: 1 }}>
