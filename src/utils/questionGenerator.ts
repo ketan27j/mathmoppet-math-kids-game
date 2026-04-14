@@ -156,7 +156,16 @@ function makeTime(config: any) {
 
 // ──────── main generator ────────
 export const CORRECT_MESSAGES = ['Amazing! 🎉','Super! ⭐','Wow! 🌟','Perfect! 🏆','Great job! 🎊','Brilliant! 🌈'];
-export const WRONG_MESSAGES   = ['Almost! 💪','Try again! 🤗','Keep going! 🌈','You got this! ✨'];
+export const WRONG_MESSAGES   = [
+  'Oops! Not quite! 🙈',
+  'Try again! 🧠',
+  'Nope! But you\'re SO close! 🦄',
+  'Bzzzzt! Wrong one! ⚡',
+  'Uh oh! Give it another go! 🐙',
+  'Whoopsie! Almost! 🍌',
+  'Not this time! You got this! 🚀',
+  'Silly mistake! Keep going! 🐣',
+];
 
 export const DIFFICULTY_LABELS = ['', 'Starter', 'Easy', 'Getting There', 'Warm Up', 'Medium', 'Picking Up', 'Challenging', 'Hard', 'Super Hard', 'Expert!'];
 

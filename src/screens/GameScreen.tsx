@@ -311,5 +311,6 @@ const styles = StyleSheet.create({
   feedbackText: {
     fontFamily: FONTS.display, fontSize: 38, color: '#fff',
     textShadowColor: 'rgba(0,0,0,0.3)', textShadowOffset: { width: 2, height: 3 }, textShadowRadius: 0,
+    textAlign: 'center', paddingHorizontal: 24,
   },
 });

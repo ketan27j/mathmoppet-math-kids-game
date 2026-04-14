@@ -73,7 +73,7 @@ export const TOPIC_EMOJIS: Record<string, string> = {
   multiplication: '🦋',
   division:       '🍕',
   shapes:         '🔷',
-  patterns:       '🔴🔵',
+  patterns:       '🔴',
   time:           '🕐',
 };
 
