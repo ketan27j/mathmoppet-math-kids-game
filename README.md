@@ -194,3 +194,4 @@ eas submit --platform ios
 - [ ] Adaptive difficulty (ML-based)
 - [ ] Offline-first with full sync
 - [ ] AR number recognition (camera)
+
